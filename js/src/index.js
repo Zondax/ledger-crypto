@@ -220,8 +220,8 @@ export default class CryptoApp {
         let result = {
           returnCode: response.returnCode,
           errorMessage: response.errorMessage,
-          signature_compact: null,
-          signature_der: null,
+          signatureCompact: null,
+          signatureDER: null,
         };
 
         for (let i = 1; i < chunks.length; i += 1) {
