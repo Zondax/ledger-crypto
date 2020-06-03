@@ -1,5 +1,5 @@
 /*******************************************************************************
-*  (c) 2019 Zondax GmbH
+*  (c) 2020 Zondax GmbH
 *
 *  Licensed under the Apache License, Version 2.0 (the "License");
 *  you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@ extern "C" {
 #include <stdint.h>
 #include <stddef.h>
 
-#define CLA                  0x08
+#define CLA                  0xE8
 
 #define HDPATH_LEN_DEFAULT   5
 
@@ -36,7 +36,7 @@ extern "C" {
 #define HDPATH_1_TESTNET     (0x80000000u | 0x1u)
 
 // compressed key
-#define PK_LEN_SECP256K1            33u
+#define PK_LEN_SECP256K1            65u
 
 typedef enum {
     addr_secp256k1 = 0,
@@ -46,17 +46,16 @@ typedef enum {
 #define VIEW_ADDRESS_ITEM_COUNT             2
 #define VIEW_ADDRESS_LAST_PAGE_DEFAULT      255
 
-#define MENU_MAIN_APP_LINE1 "Crypto"
+#define MENU_MAIN_APP_LINE1 "Crypto (DCRO)"
 #define MENU_MAIN_APP_LINE2 "DO NOT USE!"
-#define APPVERSION_LINE1 "Crypto"
+#define APPVERSION_LINE1 "Crypto (DCRO)"
 #define APPVERSION_LINE2 ("v" APPVERSION)
 
-#define COIN_AMOUNT_DECIMAL_PLACES 18
+#define COIN_AMOUNT_DECIMAL_PLACES          18
 #define CRYPTO_BLOB_SKIP_BYTES              0
 
 #define COIN_MAINNET_BECH32_HRP         "cro"
-#define COIN_TESTNET_BECH32_HRP         "tcro"
-#define COIN_REGNET_BECH32_HRP          "dcro"
+#define COIN_TESTNET_BECH32_HRP         "dcro"
 
 #ifdef __cplusplus
 }

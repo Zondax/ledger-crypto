@@ -109,7 +109,7 @@ tx_error_t tx_getItem(int8_t displayIdx,
                       uint8_t pageIdx, uint8_t *pageCount) {
     tx_error_t err = tx_no_error;
 
-    uint16_t numItems = 0;
+    uint8_t numItems = 0;
     err = tx_getNumItems(&numItems);
     if (err != tx_no_error) {
         return err;

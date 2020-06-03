@@ -17,7 +17,6 @@
 #include "crypto.h"
 #include "coin.h"
 #include "zxmacros.h"
-#include "base58.h"
 #include "rslib.h"
 #include "bech32.h"
 
@@ -31,22 +30,34 @@ bool isTestnet() {
 #if defined(TARGET_NANOS) || defined(TARGET_NANOX)
 #include "cx.h"
 
-void ripemd160(uint8_t *in, uint16_t inLen, uint8_t *out) {
-    cx_ripemd160_t rip160;
-    cx_ripemd160_init(&rip160);
-    cx_hash(&rip160.header, CX_LAST, in, inLen, out, CX_RIPEMD160_SIZE);
-}
-
 typedef struct {
     uint8_t publicKey[PK_LEN_SECP256K1];
-    uint8_t address[50];
+    char address[80];
 } __attribute__((packed)) answer_t;
 
-#define VERSION_SIZE            2
-#define CHECKSUM_SIZE           4
-
 typedef struct {
+    union{
+        uint8_t hash_pk[32];
+        struct {
+            uint8_t address_padding[12];
+            uint8_t address_pk[20];
+        };
+    };
 } __attribute__((packed)) address_temp_t;
+
+void keccak(uint8_t *out, size_t out_len, uint8_t *in, size_t in_len){
+    cx_sha3_t sha3;
+    cx_keccak_init(&sha3, 256);
+    cx_hash((cx_hash_t*)&sha3, CX_LAST, in, in_len, out, out_len);
+}
+
+// https://github.com/crypto-com/chain/blob/65931c8fa67c30a90213d754c8903055a3d00013/chain-core/src/init/address.rs#L6-L11
+//! ### Generating Address
+//! There are three main steps to obtain chain address from public keys
+//! - Start with the public key. (64 bytes)
+//! - Take a Keccak-256 hash of public key. (Note: Keccak-256 is different from SHA3-256. [Difference between Keccak256 and SHA3-256](https://ethereum.stackexchange.com/questions/30369/difference-between-keccak256-and-sha3) ) (32 bytes)
+//! - Take the last 20 bytes of this Keccak-256 hash. Or, in other words, drop the first 12 bytes.
+//!   These 20 bytes are the address.
 
 uint16_t crypto_fillAddress_secp256k1(uint8_t *buffer, uint16_t buffer_len) {
     if (buffer_len < sizeof(answer_t)) {
@@ -59,9 +70,27 @@ uint16_t crypto_fillAddress_secp256k1(uint8_t *buffer, uint16_t buffer_len) {
     crypto_extractPublicKey(hdPath, answer->publicKey, sizeof_field(answer_t, publicKey));
     address_temp_t address_temp;
 
-    uint16_t outLen = 0;
+    keccak(address_temp.hash_pk, 32, buffer, 64);
 
-    // TODO: Complete formatting
+    zxerr_t err = zxerr_ok;
+    if (isTestnet()) {
+        err = bech32EncodeFromBytes(
+                answer->address, sizeof_field(answer_t, address),
+                COIN_TESTNET_BECH32_HRP,
+                address_temp.address_pk, sizeof_field(address_temp_t, address_pk)
+        );
+    } else {
+        err = bech32EncodeFromBytes(
+                answer->address, sizeof_field(answer_t, address),
+                COIN_MAINNET_BECH32_HRP,
+                address_temp.address_pk, sizeof_field(address_temp_t, address_pk)
+        );
+    }
+
+    uint16_t outLen = 0;
+    if (err == zxerr_ok) {
+        outLen = strlen(answer->address);
+    }
 
     return PK_LEN_SECP256K1 + outLen;
 }
@@ -79,9 +108,9 @@ void crypto_extractPublicKey(const uint32_t path[HDPATH_LEN_DEFAULT], uint8_t *p
     {
         TRY {
             os_perso_derive_node_bip32(CX_CURVE_256K1,
-                                                      path,
-                                                      HDPATH_LEN_DEFAULT,
-                                                      privateKeyData, NULL);
+                                       path,
+                                       HDPATH_LEN_DEFAULT,
+                                       privateKeyData, NULL);
 
             cx_ecfp_init_private_key(CX_CURVE_256K1, privateKeyData, 32, &cx_privateKey);
             cx_ecfp_init_public_key(CX_CURVE_256K1, NULL, 0, &cx_publicKey);

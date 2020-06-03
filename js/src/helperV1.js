@@ -72,8 +72,8 @@ export async function signSendChunkv1(app, chunkIdx, chunkNum, chunk) {
       }
 
       return {
-        signature_compact: signatureCompact,
-        signature_der: signatureDER,
+        signatureCompact,
+        signatureDER,
         return_code: returnCode,
         error_message: errorMessage,
       };

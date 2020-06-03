@@ -35,11 +35,16 @@ APPVERSION_P=1
 $(info COIN  = [$(COIN)])
 ifeq ($(COIN),CRO)
 # Main app configuration
-DEFINES += APP_STANDARD
+DEFINES += APP_VARIANT_CRO
 APPNAME = "Crypto"
 APPPATH = "44'/394'"
 
-else ifeq ($(COIN),CRO_variant1)
+else ifeq ($(COIN),DCRO)
+# Main app configuration
+DEFINES += APP_VARIANT_DCRO
+APPNAME = "Crypto-DCRO"
+APPPATH = "44'/394'"
+
 else
 define error_message
 
@@ -193,3 +198,4 @@ dep/%.d: %.c Makefile
 
 listvariants:
 	@echo VARIANTS COIN CRO
+	@echo VARIANTS COIN DCRO
