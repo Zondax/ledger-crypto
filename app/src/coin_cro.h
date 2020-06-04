@@ -26,14 +26,15 @@ extern "C" {
 
 #define HDPATH_LEN_DEFAULT   5
 
-#define HDPATH_0_DEFAULT     (0x80000000u | 0x2cu)
-#define HDPATH_1_DEFAULT     (0x80000000u | 0x18a)
-#define HDPATH_2_DEFAULT     (0u)
-#define HDPATH_3_DEFAULT     (0u)
-#define HDPATH_4_DEFAULT     (0u)
+#define HDPATH_0_DEFAULT            (0x80000000u | 0x2cu)
+#define HDPATH_1_DEFAULT            (0x80000000u | 0x18a)
+#define HDPATH_2_ADDRESS_TRANSFER   (0x80000000u | 0u)
+#define HDPATH_2_ADDRESS_STAKING    (0x80000000u | 1u)
+#define HDPATH_3_CHANGE             (0u)
+#define HDPATH_4_ADDRESS_INDEX      (0u)
 
-#define HDPATH_0_TESTNET     (0x80000000u | 0x2cu)
-#define HDPATH_1_TESTNET     (0x80000000u | 0x1u)
+#define HDPATH_0_TESTNET            (0x80000000u | 0x2cu)
+#define HDPATH_1_TESTNET            (0x80000000u | 0x1u)
 
 #define PK_LEN_SECP256K1_UNCOMPRESSED            65u
 
@@ -45,10 +46,10 @@ typedef enum {
 #define VIEW_ADDRESS_ITEM_COUNT             2
 #define VIEW_ADDRESS_LAST_PAGE_DEFAULT      255
 
-#define MENU_MAIN_APP_LINE1 "Crypto"
-#define MENU_MAIN_APP_LINE2 "DO NOT USE!"
-#define APPVERSION_LINE1 "Crypto"
-#define APPVERSION_LINE2 ("v" APPVERSION)
+#define MENU_MAIN_APP_LINE1             "Crypto"
+#define MENU_MAIN_APP_LINE2             "DO NOT USE!"
+#define APPVERSION_LINE1                "Crypto"
+#define APPVERSION_LINE2                ("v" APPVERSION)
 
 #define COIN_AMOUNT_DECIMAL_PLACES          18
 #define CRYPTO_BLOB_SKIP_BYTES              0

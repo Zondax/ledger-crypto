@@ -69,18 +69,18 @@ describe('Basic checks', function () {
         }
     });
 
-    test('get address', async function () {
+    test('get address - transfer', async function () {
         const sim = new Zemu(APP_PATH);
         try {
             await sim.start(simOptions);
             const app = new CryptoApp(sim.getTransport());
 
-            const response = await app.getAddressAndPubKey("m/44'/394'/5'/0/0", true);
+            const response = await app.getAddressAndPubKey("m/44'/394'/0'/0/0", true);
             console.log(response)
             expect(response.returnCode).toEqual(0x9000);
 
-            const expected_publicKey = "02075a6c6c4d706621655c3fcd4920241b54627b9d40df0279585c03ba0c1fc3fb18a1182d3716ec909ef09cb8b9b4a1ef9bc37caef5d9c4900787825db0f6fcd2";
-            const expected_address = "cro10kw8kzz5xkq997gnxelh7du9662tqn855h4geq";
+            const expected_publicKey = "038ef50054db1b8c5ff9b02640a25463a37ca7d4249da43b4e6f4ea8f7af70daec5e276294642dec9dc28079397d6962cc32d3909e92995167768fbde7250424d9";
+            const expected_address = "cro1cvdtpjrhm33hv22vxltw00e60kcccvgat58jw8m49536nfxnywh86ps92";
 
             expect(response.publicKey.toString('hex')).toEqual(expected_publicKey);
             expect(response.address).toEqual(expected_address);
@@ -90,13 +90,34 @@ describe('Basic checks', function () {
         }
     });
 
-    test('show address', async function () {
+    test('get address - staking', async function () {
         const sim = new Zemu(APP_PATH);
         try {
             await sim.start(simOptions);
             const app = new CryptoApp(sim.getTransport());
 
-            const addrRequest = app.showAddressAndPubKey("m/44'/394'/5'/0/1", true);
+            const response = await app.getAddressAndPubKey("m/44'/394'/1'/0/0", true);
+            console.log(response)
+            expect(response.returnCode).toEqual(0x9000);
+
+            const expected_publicKey = "02eda422888bff3b3fa957ab9a509b6ae70c1249c9b9b35f1832aeb2e9a4f94b86076054d2641464e55f85e0c6d27d7dcebd60386f6178dec5e77a2a03330952aa";
+            const expected_address = "D218B4DE1EF21BE0894BB008F3C7D0D3439C174B";
+
+            expect(response.publicKey.toString('hex')).toEqual(expected_publicKey);
+            expect(response.address).toEqual(expected_address);
+
+        } finally {
+            await sim.close();
+        }
+    });
+
+    test('show address - transfer', async function () {
+        const sim = new Zemu(APP_PATH);
+        try {
+            await sim.start(simOptions);
+            const app = new CryptoApp(sim.getTransport());
+
+            const addrRequest = app.showAddressAndPubKey("m/44'/394'/0'/0/1", true);
             await Zemu.sleep(1000);
             await sim.clickRight();
             await sim.clickRight();
@@ -108,8 +129,8 @@ describe('Basic checks', function () {
             console.log(response)
             expect(response.returnCode).toEqual(0x9000);
 
-            const expected_publicKey = "038e53646a36586f9c68bc363bac8e8613de7a9fbf2d9ddc96bbb7eb0bf02024786156f1f0722d222b5f0ab7fed8cbe933766463f0bb9de1e1ba22fc34178dbc25";
-            const expected_address = "cro1ualms2z7p79elw4sskhh50hwjyje5rqy8k657w";
+            const expected_publicKey = "02db0c6d56193c5b12fa2588d4254db1eb90d502852f3bd71beb8cd7d5eda3747cae746dfc75bfcbc48c1664fc494828daf6683e9fa331875ac894d8a2a296aa7e";
+            const expected_address = "cro1px5fjx6xrrcs9cs2tk4pas0a94852zgfzt5ykmzqztwr5xuspehxlamy3";
 
             expect(response.publicKey.toString('hex')).toEqual(expected_publicKey);
             expect(response.address).toEqual(expected_address);
@@ -118,13 +139,13 @@ describe('Basic checks', function () {
         }
     });
 
-    test('show address - testnet', async function () {
+    test('show address - transfer - testnet', async function () {
         const sim = new Zemu(APP_PATH);
         try {
             await sim.start(simOptions);
             const app = new CryptoApp(sim.getTransport());
 
-            const addrRequest = app.showAddressAndPubKey("m/44'/1'/5'/0/1", true);
+            const addrRequest = app.showAddressAndPubKey("m/44'/1'/0'/0/1", true);
             await Zemu.sleep(1000);
             await sim.clickRight();
             await sim.clickRight();
@@ -136,8 +157,64 @@ describe('Basic checks', function () {
             console.log(response)
             expect(response.returnCode).toEqual(0x9000);
 
-            const expected_publicKey = "02c4f797d6efcfb22fd34d3ff5874805f6043b2a6da2aff947e10aa5ad87f13e69447967cbf73d38a6bb211aa604dd7f81e2dcc04db545e2e8138b1caae9410c06";
-            const expected_address = "tcro1rt5ysktsqsxqtgr5dsmv48ca4qaauyfcg900wm";
+            const expected_publicKey = "0357605444d19911c74882a01ccd708973b0b7672c89502f93c549675d1e9c0ee0a6814f3bf0f04a012fa5037b1e7f7e54e72a99a7c34adfc0fabee1948219b86d";
+            const expected_address = "tcro107730d7dtfa70uvz43mh5mfd8enwkc58wzmvd97y39ydp6ht7ga9r87j8";
+
+            expect(response.publicKey.toString('hex')).toEqual(expected_publicKey);
+            expect(response.address).toEqual(expected_address);
+        } finally {
+            await sim.close();
+        }
+    });
+
+    test('show address - staking', async function () {
+        const sim = new Zemu(APP_PATH);
+        try {
+            await sim.start(simOptions);
+            const app = new CryptoApp(sim.getTransport());
+
+            const addrRequest = app.showAddressAndPubKey("m/44'/394'/1'/0/1", true);
+            await Zemu.sleep(1000);
+            await sim.clickRight();
+            await sim.clickRight();
+            await sim.clickRight();
+            await sim.clickRight();
+            await sim.clickBoth();
+
+            const response = await addrRequest;
+            console.log(response)
+            expect(response.returnCode).toEqual(0x9000);
+
+            const expected_publicKey = "022eec2a1e00ece871fb2697bd7cb44732ef9664ac543c9b57916a691bf63fd22ae5f534194eadeee84d6472e116b41cf9a674e92e772d574b6f3b032c9becfa76";
+            const expected_address = "2CEC4223FD70F6B109E5EE03C4BB0AFC4C1639EF";
+
+            expect(response.publicKey.toString('hex')).toEqual(expected_publicKey);
+            expect(response.address).toEqual(expected_address);
+        } finally {
+            await sim.close();
+        }
+    });
+
+    test('show address - staking - testnet', async function () {
+        const sim = new Zemu(APP_PATH);
+        try {
+            await sim.start(simOptions);
+            const app = new CryptoApp(sim.getTransport());
+
+            const addrRequest = app.showAddressAndPubKey("m/44'/1'/1'/0/1", true);
+            await Zemu.sleep(1000);
+            await sim.clickRight();
+            await sim.clickRight();
+            await sim.clickRight();
+            await sim.clickRight();
+            await sim.clickBoth();
+
+            const response = await addrRequest;
+            console.log(response)
+            expect(response.returnCode).toEqual(0x9000);
+
+            const expected_publicKey = "032bd4f7bbeeea93f843131c7e38d73b0a79eb1a6e9a23d00e8e0779df7c37305b5d8bc52930ebacf477f57d8340c3fadf8ffbc5027caa2b5ac2d5b0f833a69a05";
+            const expected_address = "112AFD6303057B97C6396F26A3B92DE76E57805D";
 
             expect(response.publicKey.toString('hex')).toEqual(expected_publicKey);
             expect(response.address).toEqual(expected_address);
@@ -153,7 +230,7 @@ describe('Basic checks', function () {
             const app = new CryptoApp(sim.getTransport());
 
             // Do not await.. we need to click asynchronously
-            const signatureRequest = app.sign("m/44'/394'/5'/0/0", "1234");
+            const signatureRequest = app.sign("m/44'/394'/0'/0/0", "1234");
             await Zemu.sleep(2000);
 
             // Click right + double

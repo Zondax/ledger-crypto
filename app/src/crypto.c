@@ -19,6 +19,7 @@
 #include "zxmacros.h"
 #include "rslib.h"
 #include "bech32.h"
+#include "blake3.h"
 
 uint32_t hdPath[HDPATH_LEN_DEFAULT];
 
@@ -51,48 +52,72 @@ void keccak(uint8_t *out, size_t out_len, uint8_t *in, size_t in_len){
     cx_hash((cx_hash_t*)&sha3, CX_LAST, in, in_len, out, out_len);
 }
 
-// https://github.com/crypto-com/chain/blob/65931c8fa67c30a90213d754c8903055a3d00013/chain-core/src/init/address.rs#L6-L11
-//! ### Generating Address
-//! There are three main steps to obtain chain address from public keys
-//! - Start with the public key. (64 bytes)
-//! - Take a Keccak-256 hash of public key. (Note: Keccak-256 is different from SHA3-256. [Difference between Keccak256 and SHA3-256](https://ethereum.stackexchange.com/questions/30369/difference-between-keccak256-and-sha3) ) (32 bytes)
-//! - Take the last 20 bytes of this Keccak-256 hash. Or, in other words, drop the first 12 bytes.
-//!   These 20 bytes are the address.
-
 uint16_t crypto_fillAddress_secp256k1(uint8_t *buffer, uint16_t buffer_len) {
-    if (buffer_len < sizeof(answer_t)) {
+    MEMZERO(buffer, buffer_len);
+
+    // We are very much stack limited, we let's use the output buffer 
+    // to store temporary non-confidential data
+
+    if (buffer_len < sizeof(answer_t) + sizeof(address_temp_t) + 4 + 4 /* separation */ ) {
         return 0;
     }
 
-    MEMZERO(buffer, buffer_len);
+    // normally the output buffer is the G_io_apdu_buffer that is at least 250 bytes
+    // [        .... output buffer....       ]
+    // [answer_t][....][address_temp_t][..4..]
+
     answer_t *const answer = (answer_t *) buffer;
+    address_temp_t *tmp = (address_temp_t *) (buffer + (buffer_len-sizeof(address_temp_t)-4));
 
     crypto_extractPublicKey(hdPath, answer->publicKey, sizeof_field(answer_t, publicKey));
-    address_temp_t address_temp;
 
-    keccak(address_temp.hash_pk, 32, buffer, 64);
+    // Encode address depending on derivation path
+    switch(hdPath[2]) {
+        case HDPATH_2_ADDRESS_TRANSFER: {
+            blake3_hasher ctx;
+            blake3_hasher_init(&ctx);
+            blake3_hasher_update(&ctx, buffer + 1, 32);
+            blake3_hasher_finalize(&ctx, tmp->hash_pk, sizeof_field(address_temp_t, hash_pk));
 
-    zxerr_t err = zxerr_ok;
-    if (isTestnet()) {
-        err = bech32EncodeFromBytes(
+            CHECK_APP_CANARY();
+
+            const char *hrp = COIN_MAINNET_BECH32_HRP;
+            if (isTestnet()) {
+                hrp = COIN_TESTNET_BECH32_HRP;
+            }
+
+            const zxerr_t err = bech32EncodeFromBytes(
                 answer->address, sizeof_field(answer_t, address),
-                COIN_TESTNET_BECH32_HRP,
-                address_temp.address_pk, sizeof_field(address_temp_t, address_pk)
-        );
-    } else {
-        err = bech32EncodeFromBytes(
-                answer->address, sizeof_field(answer_t, address),
-                COIN_MAINNET_BECH32_HRP,
-                address_temp.address_pk, sizeof_field(address_temp_t, address_pk)
-        );
-    }
+                hrp,
+                tmp->hash_pk, sizeof_field(address_temp_t, hash_pk)
+            );
 
-    uint16_t outLen = 0;
-    if (err == zxerr_ok) {
-        outLen = strlen(answer->address);
-    }
+            if (err != zxerr_ok) {
+                return 0;
+            }
 
-    return PK_LEN_SECP256K1_UNCOMPRESSED + outLen;
+            CHECK_APP_CANARY();
+            return PK_LEN_SECP256K1_UNCOMPRESSED + strlen(answer->address);
+        }
+
+        case HDPATH_2_ADDRESS_STAKING: {
+            // https://github.com/crypto-com/chain/blob/65931c8fa67c30a90213d754c8903055a3d00013/chain-core/src/init/address.rs#L6-L11
+            //! ### Generating Address
+            //! There are three main steps to obtain chain address from public keys
+            //! - Start with the public key. (64 bytes)
+            //! - Take a Keccak-256 hash of public key. (Note: Keccak-256 is different from SHA3-256. [Difference between Keccak256 and SHA3-256](https://ethereum.stackexchange.com/questions/30369/difference-between-keccak256-and-sha3) ) (32 bytes)
+            //! - Take the last 20 bytes of this Keccak-256 hash. Or, in other words, drop the first 12 bytes.
+            //!   These 20 bytes are the address.
+            keccak(tmp->hash_pk, 32, buffer + 1, PK_LEN_SECP256K1_UNCOMPRESSED-1);
+            array_to_hexstr(answer->address, sizeof_field(answer_t, address), tmp->hash_pk, 20);
+
+            CHECK_APP_CANARY();
+            return PK_LEN_SECP256K1_UNCOMPRESSED + 40;
+        }
+            break;
+        default:
+            return 0;
+    }
 }
 
 void crypto_extractPublicKey(const uint32_t path[HDPATH_LEN_DEFAULT], uint8_t *pubKey, uint16_t pubKeyLen) {
