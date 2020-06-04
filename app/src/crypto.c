@@ -31,7 +31,7 @@ bool isTestnet() {
 #include "cx.h"
 
 typedef struct {
-    uint8_t publicKey[PK_LEN_SECP256K1];
+    uint8_t publicKey[PK_LEN_SECP256K1_UNCOMPRESSED];
     char address[80];
 } __attribute__((packed)) answer_t;
 
@@ -92,7 +92,7 @@ uint16_t crypto_fillAddress_secp256k1(uint8_t *buffer, uint16_t buffer_len) {
         outLen = strlen(answer->address);
     }
 
-    return PK_LEN_SECP256K1 + outLen;
+    return PK_LEN_SECP256K1_UNCOMPRESSED + outLen;
 }
 
 void crypto_extractPublicKey(const uint32_t path[HDPATH_LEN_DEFAULT], uint8_t *pubKey, uint16_t pubKeyLen) {
@@ -100,7 +100,7 @@ void crypto_extractPublicKey(const uint32_t path[HDPATH_LEN_DEFAULT], uint8_t *p
     cx_ecfp_private_key_t cx_privateKey;
     uint8_t privateKeyData[32];
 
-    if (pubKeyLen < PK_LEN_SECP256K1) {
+    if (pubKeyLen < PK_LEN_SECP256K1_UNCOMPRESSED) {
         return;
     }
 
@@ -132,7 +132,7 @@ void crypto_extractPublicKey(const uint32_t path[HDPATH_LEN_DEFAULT], uint8_t *p
         pubKey[31] |= 0x80;
     }
 
-    memcpy(pubKey, cx_publicKey.W, PK_LEN_SECP256K1);
+    memcpy(pubKey, cx_publicKey.W, PK_LEN_SECP256K1_UNCOMPRESSED);
 }
 
 typedef struct {

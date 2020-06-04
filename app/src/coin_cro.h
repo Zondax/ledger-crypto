@@ -35,14 +35,13 @@ extern "C" {
 #define HDPATH_0_TESTNET     (0x80000000u | 0x2cu)
 #define HDPATH_1_TESTNET     (0x80000000u | 0x1u)
 
-// compressed key
-#define PK_LEN_SECP256K1            65u
+#define PK_LEN_SECP256K1_UNCOMPRESSED            65u
 
 typedef enum {
     addr_secp256k1 = 0,
 } address_kind_e;
 
-#define VIEW_ADDRESS_OFFSET_SECP256K1       PK_LEN_SECP256K1
+#define VIEW_ADDRESS_OFFSET_SECP256K1       PK_LEN_SECP256K1_UNCOMPRESSED
 #define VIEW_ADDRESS_ITEM_COUNT             2
 #define VIEW_ADDRESS_LAST_PAGE_DEFAULT      255
 
