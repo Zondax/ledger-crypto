@@ -26,7 +26,7 @@ add_subdirectory(cmake/gtest)
 string(APPEND CMAKE_CXX_FLAGS " -fsanitize=address -fno-omit-frame-pointer")
 string(APPEND CMAKE_LINKER_FLAGS " -fsanitize=address -fno-omit-frame-pointer")
 
-add_definitions(-DAPP_STANDARD)
+add_definitions(-DAPP_VARIANT_CRO)
 
 ##############################################################
 ##############################################################

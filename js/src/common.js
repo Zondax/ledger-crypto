@@ -24,7 +24,7 @@ export const ERROR_CODE = {
   NoError: 0x9000,
 };
 
-export const PKLEN = 33;
+export const PKLEN = 65;
 
 const ERROR_DESCRIPTION = {
   1: "U2F: Unknown",
@@ -65,27 +65,27 @@ export function processErrorResponse(response) {
     if (isDict(response)) {
       if (Object.prototype.hasOwnProperty.call(response, "statusCode")) {
         return {
-          return_code: response.statusCode,
-          error_message: errorCodeToString(response.statusCode),
+          returnCode: response.statusCode,
+          errorMessage: errorCodeToString(response.statusCode),
         };
       }
 
       if (
-        Object.prototype.hasOwnProperty.call(response, "return_code") &&
-        Object.prototype.hasOwnProperty.call(response, "error_message")
+        Object.prototype.hasOwnProperty.call(response, "returnCode") &&
+        Object.prototype.hasOwnProperty.call(response, "errorMessage")
       ) {
         return response;
       }
     }
     return {
-      return_code: 0xffff,
-      error_message: response.toString(),
+      returnCode: 0xffff,
+      errorMessage: response.toString(),
     };
   }
 
   return {
-    return_code: 0xffff,
-    error_message: response.toString(),
+    returnCode: 0xffff,
+    errorMessage: response.toString(),
   };
 }
 
@@ -102,15 +102,15 @@ export async function getVersion(transport) {
     }
 
     return {
-      return_code: returnCode,
-      error_message: errorCodeToString(returnCode),
+      returnCode,
+      errorMessage: errorCodeToString(returnCode),
       // ///
-      test_mode: response[0] !== 0,
+      testMode: response[0] !== 0,
       major: response[1],
       minor: response[2],
       patch: response[3],
-      device_locked: response[4] === 1,
-      target_id: targetId.toString(16),
+      deviceLocked: response[4] === 1,
+      targetId: targetId.toString(16),
     };
   }, processErrorResponse);
 }

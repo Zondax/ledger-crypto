@@ -35,11 +35,16 @@ APPVERSION_P=1
 $(info COIN  = [$(COIN)])
 ifeq ($(COIN),CRO)
 # Main app configuration
-DEFINES += APP_STANDARD
+DEFINES += APP_VARIANT_CRO
 APPNAME = "Crypto"
 APPPATH = "44'/394'"
 
-else ifeq ($(COIN),CRO_variant1)
+else ifeq ($(COIN),DCRO)
+# Main app configuration
+DEFINES += APP_VARIANT_DCRO
+APPNAME = "Crypto-DCRO"
+APPPATH = "44'/394'"
+
 else
 define error_message
 
@@ -116,7 +121,7 @@ SDK_SOURCE_PATH  += lib_ux
 else
 # Assume Nano S
 DEFINES       += IO_SEPROXYHAL_BUFFER_SIZE_B=128
-DEFINES       += HAVE_BOLOS_UX COMPLIANCE_UX_160 HAVE_UX_LEGACY HAVE_UX_FLOW
+DEFINES       += HAVE_BOLOS_UX COMPLIANCE_UX_160 HAVE_UX_LEGACY
 endif
 
 # X specific
@@ -162,6 +167,7 @@ APP_SOURCE_PATH += $(MY_DIR)/rust/include
 APP_SOURCE_PATH += $(MY_DIR)/../deps/ledger-zxlib/include
 APP_SOURCE_PATH += $(MY_DIR)/../deps/ledger-zxlib/src
 APP_SOURCE_PATH += $(MY_DIR)/../deps/ledger-zxlib/app/common
+APP_SOURCE_PATH += $(MY_DIR)/../deps/BLAKE3_minimal
 
 SDK_SOURCE_PATH += lib_stusb lib_stusb_impl
 
@@ -193,3 +199,4 @@ dep/%.d: %.c Makefile
 
 listvariants:
 	@echo VARIANTS COIN CRO
+	@echo VARIANTS COIN DCRO

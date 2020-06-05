@@ -15,10 +15,10 @@
 ********************************************************************************/
 #pragma once
 
-#if defined(APP_STANDARD)
-#include "coin_standard.h"
-#elif defined(APP_VARIANT1)
-#include "coin_variant1.h"
+#if defined(APP_VARIANT_CRO)
+#include "coin_cro.h"
+#elif defined(APP_VARIANT_DCRO)
+#include "coin_dcro.h"
 #else
 #error "APP MODE IS NOT SUPPORTED"
 #endif

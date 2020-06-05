@@ -7,8 +7,8 @@ const APP_PATH = path.resolve(`./../../app/bin/app.elf`);
 const seed = "equip will roof matter pink blind book anxiety banner elbow sun young"
 const SIM_OPTIONS = {
     logging: true,
-    start_delay: 4000,
-    X11: true,
+    start_delay: 3000,
+//    X11: true,
     custom: `-s "${seed}" --color LAGOON_BLUE`
 };
 
@@ -26,35 +26,9 @@ async function beforeEnd() {
 }
 
 async function debugScenario1(sim, app) {
-    // Here you can customize what you want to do :)
-    const addrRequest = app.showAddressAndPubKey("m/44'/394'/5'/0/0");
 
-    await Zemu.default.sleep(1000);
-    // await sim.clickRight();
-    await sim.clickBoth();
-
-    const addr = await addrRequest;
-    console.log(addr)
-
-    // From https://iancoleman.io/bip39/
-    const expected_pk = "";
-    const expected_addr = "";
-
-    if (addr.return_code !== 0x9000) {
-        console.log("INVALID RESPONSE")
-        return;
-    }
-
-    const pk = addr.address_raw.toString('hex');
-    console.log(pk)
-    if (expected_pk !== pk) {
-        console.log("INCORRECT PK!")
-    }
-
-    console.log(addr.address)
-    if (expected_addr !== addr.address) {
-        console.log("INVALID ADDRESS!")
-    }
+    const response = await app.getAddressAndPubKey("m/44'/394'/0'/0/0");
+    console.log(response)
 }
 
 async function debugScenario2(sim, app) {
@@ -87,7 +61,7 @@ async function main() {
         ////////////
         /// TIP you can use zemu commands here to take the app to the point where you trigger a breakpoint
 
-        await debugScenario2(sim, app);
+        await debugScenario1(sim, app);
 
         /// TIP
 
