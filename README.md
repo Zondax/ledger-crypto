@@ -53,25 +53,29 @@ then run:
     git submodule update --init --recursive
     ```
 
-- Install Docker CE
-    - Instructions can be found here: https://docs.docker.com/install/
-
 - We only officially support Ubuntu. Install the following packages:
    ```
    sudo apt update && apt-get -y install build-essential git wget cmake \
   libssl-dev libgmp-dev autoconf libtool
    ```
 
-- Install `node > v13.0`. We typically recommend using `n`
+    > **Experimental** support for MacOS (Catalina 10.15.4)
+    >
+    > `brew install hidapi`
+
+- Install Docker CE
+    - Instructions can be found here: https://docs.docker.com/install/
 
 - You will need python 3 and then run
     - `make deps`
 
+*Warning*: Some IDEs may not use the same python interpreter or virtual enviroment as the one you used when running `pip`.
+If you see conan is not found, check that you installed the package in the same interpreter as the one that launches `cmake`.
+
 - This project requires Ledger firmware 1.6
     - The current repository keeps track of Ledger's SDK but it is possible to override it by changing the git submodule.
 
-*Warning*: Some IDEs may not use the same python interpreter or virtual enviroment as the one you used when running `pip`.
-If you see conan is not found, check that you installed the package in the same interpreter as the one that launches `cmake`.
+- Install `node > v13.0`. We typically recommend using `n` (*This is only required to run integrations tests.*)s
 
 ## How to build ?
 
@@ -133,7 +137,7 @@ To run a single specific test:
 
 > At the moment, the recommendation is to run from the IDE. Remember to run `make` if you change the app.
 
-## How to debug a ledger app?
+## How to debug a Ledger app?
 
 You can use vscode or clion to debug the app. We recommend using CLion but we provide a vscode (unsupported) configuration too.
 

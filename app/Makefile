@@ -156,8 +156,10 @@ AS := $(GCCPATH)arm-none-eabi-gcc
 AFLAGS +=
 
 LD       := $(GCCPATH)arm-none-eabi-gcc
-LDFLAGS  += -O3 -Os -z muldefs
-LDLIBS   += -Lrust/target/thumbv6m-none-eabi/release -lrslib -lm -lgcc -lc
+LDFLAGS  += -O3 -Os
+LDLIBS   += -lm -lgcc -lc
+#LDFLAGS  += -z muldefs
+#LDLIBS   += -Lrust/target/thumbv6m-none-eabi/release -lrslib -lm -lgcc -lc
 
 ##########################
 include $(BOLOS_SDK)/Makefile.glyphs
@@ -175,10 +177,12 @@ SDK_SOURCE_PATH += lib_stusb lib_stusb_impl
 SDK_SOURCE_PATH  += lib_ux
 
 rust:
-	cd rust && CARGO_HOME="$(CURDIR)/rust/.cargo" cargo build --target thumbv6m-none-eabi --release
+	@echo "No rust code"
+	#cd rust && CARGO_HOME="$(CURDIR)/rust/.cargo" cargo build --target thumbv6m-none-eabi --release
 
 rust_clean:
-	cd rust && CARGO_HOME="$(CURDIR)/rust/.cargo" cargo clean
+	@echo "No rust code"
+	#cd rust && CARGO_HOME="$(CURDIR)/rust/.cargo" cargo clean
 
 # load, delete and listvariants are provided to comply with Ledger requirements
 load:
