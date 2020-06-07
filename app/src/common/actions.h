@@ -30,16 +30,22 @@ __Z_INLINE uint8_t app_fill_address(address_kind_e kind) {
     // Put data directly in the apdu buffer
     MEMZERO(G_io_apdu_buffer, IO_APDU_BUFFER_SIZE);
 
-    switch (kind) {
-        case addr_secp256k1:
-            action_addr_len = crypto_fillAddress_secp256k1(G_io_apdu_buffer, IO_APDU_BUFFER_SIZE - 2);
-            break;
-        default:
-            action_addr_len = 0;
-            break;
+    action_addr_len = 0;
+    if (kind != addr_secp256k1) {
+        return 0;
     }
 
-    return action_addr_len;
+    if (hdPath[2] == HDPATH_2_ADDRESS_TRANSFER) {
+        action_addr_len = crypto_fillAddress_secp256k1_transfer(G_io_apdu_buffer, IO_APDU_BUFFER_SIZE - 2);
+        return action_addr_len;
+    }
+
+    if (hdPath[2] == HDPATH_2_ADDRESS_STAKING) {
+        action_addr_len = crypto_fillAddress_secp256k1_staking(G_io_apdu_buffer, IO_APDU_BUFFER_SIZE - 2);
+        return action_addr_len;
+    }
+
+    return 0;
 }
 
 __Z_INLINE void app_reply_address(address_kind_e kind) {
