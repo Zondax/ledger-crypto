@@ -55,8 +55,8 @@ then run:
 
 - We only officially support Ubuntu. Install the following packages:
    ```
-   sudo apt update && apt-get -y install build-essential git wget cmake \
-  libssl-dev libgmp-dev autoconf libtool
+   sudo apt update && sudo apt-get -y install build-essential git wget cmake \
+  libssl-dev libgmp-dev autoconf libtool libusb-1.0-0-dev libudev-dev
    ```
 
     > **Experimental** support for MacOS (Catalina 10.15.4)
@@ -75,7 +75,9 @@ If you see conan is not found, check that you installed the package in the same 
 - This project requires Ledger firmware 1.6
     - The current repository keeps track of Ledger's SDK but it is possible to override it by changing the git submodule.
 
-- Install `node > v13.0`. We typically recommend using `n` (*This is only required to run integrations tests.*)s
+**If you want to run integration tests (zemu)**
+- Install `node > v13.0`. We typically recommend using `n`
+- Install yarn. For instance: `npm install -g yarn`
 
 ## How to build ?
 
