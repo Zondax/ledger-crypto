@@ -44,6 +44,7 @@ typedef struct {
             uint8_t address_pk[20];
         };
     };
+    uint8_t merkle_tmp[1];
 } __attribute__((packed)) address_temp_t;
 
 void keccak(uint8_t *out, size_t out_len, uint8_t *in, size_t in_len){
@@ -75,6 +76,7 @@ uint16_t crypto_fillAddress_secp256k1_transfer() {
     // Encode address depending on derivation path
     blake3_hasher ctx;
     blake3_hasher_init(&ctx);
+    blake3_hasher_update(&ctx, tmp->merkle_tmp, 1);
     blake3_hasher_update(&ctx, answer->publicKey + 1, 32);
     blake3_hasher_finalize(&ctx, tmp->hash_pk, sizeof_field(address_temp_t, hash_pk));
 
@@ -88,7 +90,8 @@ uint16_t crypto_fillAddress_secp256k1_transfer() {
     const zxerr_t err = bech32EncodeFromBytes(
         answer->address, sizeof_field(answer_t, address),
         hrp,
-        tmp->hash_pk, sizeof_field(address_temp_t, hash_pk)
+        tmp->hash_pk, sizeof_field(address_temp_t, hash_pk),
+        1
     );
 
     if (err != zxerr_ok) {
@@ -125,7 +128,7 @@ uint16_t crypto_fillAddress_secp256k1_staking() {
     //! - Take the last 20 bytes of this Keccak-256 hash. Or, in other words, drop the first 12 bytes.
     //!   These 20 bytes are the address.
     keccak(tmp->hash_pk, 32, answer->publicKey + 1, PK_LEN_SECP256K1_UNCOMPRESSED - 1);
-    array_to_hexstr(answer->address, sizeof_field(answer_t, address), tmp->hash_pk, 20);
+    array_to_hexstr(answer->address, sizeof_field(answer_t, address), tmp->address_pk, 20);
     CHECK_APP_CANARY();
     return PK_LEN_SECP256K1_UNCOMPRESSED + 40;
 }
