@@ -39,7 +39,7 @@ TEST(Blake3, minimal) {
 
     array_to_hexstr(out_hex, sizeof(out_hex), out, sizeof(out));
     printf("%s\n", out_hex);
-    EXPECT_STREQ(out_hex, "965EDE7A053C1DEFA6786AF08E0C9C20D41FE94433FA5D249DE0D214E23909F8");
+    EXPECT_STREQ(out_hex, "965ede7a053c1defa6786af08e0c9c20d41fe94433fa5d249de0d214e23909f8");
 }
 
 #pragma clang diagnostic pop
