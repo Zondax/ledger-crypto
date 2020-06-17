@@ -363,7 +363,7 @@ void blake3_hasher_init_derive_key(blake3_hasher *self, const char *context) {
     hasher_init_base(&context_hasher, IV, DERIVE_KEY_CONTEXT);
     blake3_hasher_update(&context_hasher, context, strlen(context));
     uint8_t context_key[BLAKE3_KEY_LEN];
-    blake3_hasher_finalize(&context_hasher, context_key, BLAKE3_KEY_LEN);
+    blake3_hasher_finalize_seek(&context_hasher, context_key);
     uint32_t context_key_words[8];
     load_key_words(context_key, context_key_words);
     hasher_init_base(self, context_key_words, DERIVE_KEY_MATERIAL);

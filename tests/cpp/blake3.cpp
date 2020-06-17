@@ -32,7 +32,7 @@ TEST(Blake3, minimal) {
 
     blake3_hasher_init(&ctx);
     blake3_hasher_update(&ctx, in, sizeof(in)-1);
-    blake3_hasher_finalize(&ctx, out, sizeof(out));
+    blake3_hasher_finalize_seek(&ctx, out);
 
     char out_hex[100];
     memset(out_hex, 0, sizeof(out_hex));
