@@ -26,7 +26,7 @@ const simOptions = {
     logging: true,
     start_delay: 3000,
     custom: `-s "${APP_SEED}"`
-//    ,X11: true
+    ,X11: true
 };
 
 jest.setTimeout(15000)
@@ -81,7 +81,7 @@ describe('Basic checks', function () {
 
             const expected_publicKey = "048ef50054db1b8c5ff9b02640a25463a37ca7d4249da43b4e6f4ea8f7af70daec5e276294642dec9dc28079397d6962cc32d3909e92995167768fbde7250424d9";
             const expected_address = "cro1n97t35jymgksmh73mh0zj3qx539k3hg4pfhmncake4ssm3z7rreqzkza53";
-            
+
             expect(response.publicKey.toString('hex')).toEqual(expected_publicKey);
             expect(response.address).toEqual(expected_address);
 
@@ -233,8 +233,6 @@ describe('Basic checks', function () {
             const signatureRequest = app.sign("m/44'/394'/0'/0/0", "1234");
             await Zemu.sleep(2000);
 
-            // Click right + double
-            await sim.clickRight();
             await sim.clickBoth();
 
             let signature = await signatureRequest;
