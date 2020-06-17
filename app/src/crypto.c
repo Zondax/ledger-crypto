@@ -21,6 +21,7 @@
 #include "bech32.h"
 #include "blake3.h"
 #include "blake3_impl.h"
+#include "zbuffer.h"
 #include "cx.h"
 
 uint32_t hdPath[HDPATH_LEN_DEFAULT];
@@ -73,14 +74,24 @@ uint16_t crypto_fillAddress_secp256k1_transfer() {
     address_temp_t *const tmp = (address_temp_t *) (ADDRESS_BUFFER + sizeof(answer_t));
     crypto_extractPublicKey(hdPath, answer->publicKey, sizeof_field(answer_t, publicKey));
 
-    // Encode address depending on derivation path
-    blake3_hasher ctx;
-    blake3_hasher_init(&ctx);
-    blake3_hasher_update(&ctx, tmp->merkle_tmp, 1);
-    blake3_hasher_update(&ctx, answer->publicKey + 1, 32);
-    blake3_hasher_finalize(&ctx, tmp->hash_pk, sizeof_field(address_temp_t, hash_pk));
 
-    CHECK_APP_CANARY();
+    // Encode address depending on derivation path
+    zb_allocate(sizeof(blake3_hasher));
+    blake3_hasher *ctx;
+    zb_get(&ctx);
+
+    blake3_hasher_init(ctx);
+    zb_check_canary();
+    blake3_hasher_update(ctx, tmp->merkle_tmp, 1);
+    zb_check_canary();
+    blake3_hasher_update(ctx, answer->publicKey + 1, 32);
+    zb_check_canary();
+    blake3_hasher_finalize_seek(ctx, 0, tmp->hash_pk, sizeof_field(address_temp_t, hash_pk));
+    zb_check_canary();
+
+    zb_check_canary();
+    zb_deallocate();
+    zb_check_canary();
 
     const char *hrp = COIN_MAINNET_BECH32_HRP;
     if (isTestnet()) {

@@ -1,12 +1,12 @@
 #include "blake3_impl.h"
 #include <string.h>
 
-INLINE void store32(void *dst, uint32_t w) {
-  uint8_t *p = (uint8_t *)dst;
-  p[0] = (uint8_t)(w >> 0);
-  p[1] = (uint8_t)(w >> 8);
-  p[2] = (uint8_t)(w >> 16);
-  p[3] = (uint8_t)(w >> 24);
+void store32(void *dst, uint32_t w) {
+  uint8_t *const p = (uint8_t *)dst;
+  p[0] = (uint8_t)(w >> 0u);
+  p[1] = (uint8_t)(w >> 8u);
+  p[2] = (uint8_t)(w >> 16u);
+  p[3] = (uint8_t)(w >> 24u);
 }
 
 INLINE uint32_t rotr32(uint32_t w, uint32_t c) {
@@ -25,7 +25,7 @@ INLINE void g(uint32_t *state, size_t a, size_t b, size_t c, size_t d,
   state[b] = rotr32(state[b] ^ state[c], 7);
 }
 
-INLINE void round_fn(uint32_t state[16], const uint32_t *msg, size_t round) {
+void round_fn(uint32_t state[16], const uint32_t *msg, size_t round) {
   // Select the message schedule based on the round.
   const uint8_t *schedule = MSG_SCHEDULE[round];
 
@@ -42,7 +42,7 @@ INLINE void round_fn(uint32_t state[16], const uint32_t *msg, size_t round) {
   g(state, 3, 4, 9, 14, msg[schedule[14]], msg[schedule[15]]);
 }
 
-INLINE void compress_pre(uint32_t state[16], const uint32_t cv[8],
+void compress_pre(uint32_t state[16], const uint32_t cv[8],
                          const uint8_t block[BLAKE3_BLOCK_LEN],
                          uint8_t block_len, uint64_t counter, uint8_t flags) {
   uint32_t block_words[16];
