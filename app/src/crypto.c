@@ -74,11 +74,10 @@ uint16_t crypto_fillAddress_secp256k1_transfer() {
     address_temp_t *const tmp = (address_temp_t *) (ADDRESS_BUFFER + sizeof(answer_t));
     crypto_extractPublicKey(hdPath, answer->publicKey, sizeof_field(answer_t, publicKey));
 
-
     // Encode address depending on derivation path
     zb_allocate(sizeof(blake3_hasher));
     blake3_hasher *ctx;
-    zb_get(&ctx);
+    zb_get((uint8_t **)&ctx);
 
     blake3_hasher_init(ctx);
     zb_check_canary();
@@ -86,7 +85,7 @@ uint16_t crypto_fillAddress_secp256k1_transfer() {
     zb_check_canary();
     blake3_hasher_update(ctx, answer->publicKey + 1, 32);
     zb_check_canary();
-    blake3_hasher_finalize_seek(ctx, 0, tmp->hash_pk, sizeof_field(address_temp_t, hash_pk));
+    blake3_hasher_finalize_seek(ctx, tmp->hash_pk);
     zb_check_canary();
 
     zb_check_canary();

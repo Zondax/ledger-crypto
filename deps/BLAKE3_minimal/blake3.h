@@ -44,10 +44,7 @@ void blake3_hasher_init_keyed(blake3_hasher *self,
 void blake3_hasher_init_derive_key(blake3_hasher *self, const char *context);
 void blake3_hasher_update(blake3_hasher *self, const void *input,
                           size_t input_len);
-void blake3_hasher_finalize(const blake3_hasher *self, uint8_t *out,
-                            size_t out_len);
-void blake3_hasher_finalize_seek(const blake3_hasher *self, uint64_t seek,
-                                 uint8_t *out, size_t out_len);
+void blake3_hasher_finalize_seek(const blake3_hasher *self, uint8_t *out);
 
 #ifdef __cplusplus
 }
