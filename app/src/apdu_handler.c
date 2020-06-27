@@ -44,11 +44,29 @@ __Z_INLINE void handleGetAddrSecp256K1(volatile uint32_t *flags, volatile uint32
     THROW(APDU_CODE_OK);
 }
 
+void calculateDigest() {
+    // FIXME: We need to improve this
+    // [ two bytes header ] [ tx payload ] [ prefix+secp256k1 signature ]
+    // [ prefix+secp256k1 signature ] = [ u32 ] [ 64 bytes ]
+    //  2 bytes [....] 68 bytes
+
+    // we need to precalculate otherwise we won't have memory afterwards
+    if (tx_get_buffer_length() > 2 + 66) {
+        // precalculate blake3 hash
+//        uint8_t message_digest[32];
+        hash_blake3(G_io_apdu_buffer, tx_get_buffer() + 2, tx_get_buffer_length() - 2 - 66);
+    }
+}
+
 __Z_INLINE void handleSignSecp256K1(volatile uint32_t *flags, volatile uint32_t *tx, uint32_t rx) {
     if (!process_chunk(tx, rx)) {
         THROW(APDU_CODE_OK);
     }
 
+    zemu_log_stack("handleSignSecp256K1");
+    calculateDigest();
+
+    zemu_log_stack("Try parsing now");
     const char *error_msg = tx_parse();
 
     if (error_msg != NULL) {

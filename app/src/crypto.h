@@ -38,6 +38,8 @@ void crypto_extractPublicKey(const uint32_t path[HDPATH_LEN_DEFAULT], uint8_t *p
 uint16_t crypto_fillAddress_secp256k1_transfer();
 uint16_t crypto_fillAddress_secp256k1_staking();
 
+void hash_blake3(uint8_t *message_digest, const uint8_t *message, uint16_t messageLen);
+
 uint16_t crypto_sign(uint8_t *signature,
                      uint16_t signatureMaxlen,
                      const uint8_t *message,
