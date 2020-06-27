@@ -14,9 +14,11 @@
  *  limitations under the License.
  ******************************************************************************* */
 
-import { expect, test } from "jest";
+import jest, {expect} from "jest";
 import Zemu from "@zondax/zemu";
 import CryptoApp from "@zondax/ledger-crypto";
+import secp256k1 from "secp256k1/elliptic";
+import blake3 from "blake3-js"
 
 const Resolve = require("path").resolve;
 const APP_PATH = Resolve("../app/bin/app.elf");
@@ -26,7 +28,7 @@ const simOptions = {
     logging: true,
     start_delay: 3000,
     custom: `-s "${APP_SEED}"`
-    ,X11: true
+    , X11: true
 };
 
 jest.setTimeout(15000)
@@ -75,7 +77,7 @@ describe('Basic checks', function () {
             await sim.start(simOptions);
             const app = new CryptoApp(sim.getTransport());
 
-            const response = await app.getAddressAndPubKey("m/44'/394'/0'/0/0", true);
+            const response = await app.getAddressAndPubKey("m/44'/394'/0'/0/0");
             console.log(response)
             expect(response.returnCode).toEqual(0x9000);
 
@@ -96,7 +98,7 @@ describe('Basic checks', function () {
             await sim.start(simOptions);
             const app = new CryptoApp(sim.getTransport());
 
-            const response = await app.getAddressAndPubKey("m/44'/394'/1'/0/0", true);
+            const response = await app.getAddressAndPubKey("m/44'/394'/1'/0/0");
             console.log(response)
             expect(response.returnCode).toEqual(0x9000);
 
@@ -117,7 +119,7 @@ describe('Basic checks', function () {
             await sim.start(simOptions);
             const app = new CryptoApp(sim.getTransport());
 
-            const addrRequest = app.showAddressAndPubKey("m/44'/394'/0'/0/1", true);
+            const addrRequest = app.showAddressAndPubKey("m/44'/394'/0'/0/1");
             await Zemu.sleep(1000);
             await sim.clickRight();
             await sim.clickRight();
@@ -145,7 +147,7 @@ describe('Basic checks', function () {
             await sim.start(simOptions);
             const app = new CryptoApp(sim.getTransport());
 
-            const addrRequest = app.showAddressAndPubKey("m/44'/1'/0'/0/1", true);
+            const addrRequest = app.showAddressAndPubKey("m/44'/1'/0'/0/1");
             await Zemu.sleep(1000);
             await sim.clickRight();
             await sim.clickRight();
@@ -173,7 +175,7 @@ describe('Basic checks', function () {
             await sim.start(simOptions);
             const app = new CryptoApp(sim.getTransport());
 
-            const addrRequest = app.showAddressAndPubKey("m/44'/394'/1'/0/1", true);
+            const addrRequest = app.showAddressAndPubKey("m/44'/394'/1'/0/1");
             await Zemu.sleep(1000);
             await sim.clickRight();
             await sim.clickRight();
@@ -201,7 +203,7 @@ describe('Basic checks', function () {
             await sim.start(simOptions);
             const app = new CryptoApp(sim.getTransport());
 
-            const addrRequest = app.showAddressAndPubKey("m/44'/1'/1'/0/1", true);
+            const addrRequest = app.showAddressAndPubKey("m/44'/1'/1'/0/1");
             await Zemu.sleep(1000);
             await sim.clickRight();
             await sim.clickRight();
@@ -229,18 +231,42 @@ describe('Basic checks', function () {
             await sim.start(simOptions);
             const app = new CryptoApp(sim.getTransport());
 
+            const path = "m/44'/394'/1'/0/1";
+            const blobStr = "010000bce02627ca9daa2af92412cb9998aa59df1270790000000000000000e803000000000000000001000000000000000001686d772b75f229beb68b761432148eaa762d6bc38d89cc76b90799e1cea7d0ab34b5dd4740a0a1dc06f4d7f25f9747b8b6c14e50a6176cc6e55e9f3005556cc2"
+            const blob = Buffer.from(blobStr, "hex")
+
+            const addrResponse = await app.getAddressAndPubKey(path);
+            console.log(addrResponse)
+
+            const pk = Uint8Array.from(addrResponse.publicKey)
+            const blobToHash = blob.slice(2, blob.length - 66)
+            const msgHash = Uint8Array.from(blake3
+                .newRegular()
+                .update(blobToHash)
+                .finalize(32, "bytes"));
+            console.log("Blob To Hash: ", Buffer.from(blobToHash).toString("hex"))
+            console.log("TX ID       :  ", Buffer.from(msgHash).toString("hex"))
+
             // Do not await.. we need to click asynchronously
-            const signatureRequest = app.sign("m/44'/394'/0'/0/0", "1234");
+            const signatureRequest = app.sign(path, blob);
             await Zemu.sleep(2000);
 
+            await sim.clickRight();
+            await sim.clickRight();
+            await sim.clickRight();
+            await sim.clickRight();
+            await sim.clickRight();
+            await sim.clickRight();
             await sim.clickBoth();
 
-            let signature = await signatureRequest;
-            console.log(signature)
+            let signatureResponse = await signatureRequest;
+            console.log(signatureResponse)
+            expect(signatureResponse.returnCode).toEqual(0x9000);
 
-            expect(signature.returnCode).toEqual(0x9000);
-
-            // TODO: Verify signature
+            // Now verify the signature
+            const signature = secp256k1.signatureImport(Uint8Array.from(signatureResponse.signatureDER));
+            const signatureOk = secp256k1.ecdsaVerify(signature, msgHash, pk);
+            expect(signatureOk).toEqual(true);
         } finally {
             await sim.close();
         }

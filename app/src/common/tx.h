@@ -45,8 +45,11 @@ uint8_t *tx_get_buffer();
 
 /// Parse message stored in transaction buffer
 /// This function should be called as soon as full buffer data is loaded.
-/// \return It returns NULL if json is valid or error message otherwise.
+/// \return It returns NULL if data is valid or error message otherwise.
 const char *tx_parse();
+
+/// Release zbuffer memory
+ void tx_parse_reset();
 
 /// Return the number of items in the transaction
 tx_error_t tx_getNumItems(uint8_t *num_items);

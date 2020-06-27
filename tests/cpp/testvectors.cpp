@@ -45,7 +45,8 @@ void check_testcase(const testcase_t &testcase) {
         hdPath[1] = HDPATH_1_TESTNET;
     }
 
-    err = parser_parse(&ctx, tc.blob.data(), tc.blob.size());
+    parser_tx_t tx_obj;
+    err = parser_parse(&ctx, tc.blob.data(), tc.blob.size(), &tx_obj);
     if (tc.valid) {
         ASSERT_EQ(err, parser_ok) << parser_getErrorDescription(err);
     } else {

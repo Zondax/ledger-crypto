@@ -74,21 +74,24 @@ uint16_t crypto_fillAddress_secp256k1_transfer() {
     address_temp_t *const tmp = (address_temp_t *) (ADDRESS_BUFFER + sizeof(answer_t));
     crypto_extractPublicKey(hdPath, answer->publicKey, sizeof_field(answer_t, publicKey));
 
-    // Encode address depending on derivation path
+    zemu_log_stack("fill_address_transfer");
+
+    // Now hash public key with blake3
     zb_allocate(sizeof(blake3_hasher));
     blake3_hasher *ctx;
     zb_get((uint8_t **)&ctx);
 
     blake3_hasher_init(ctx);
     zb_check_canary();
+    // Merkle prefix
     blake3_hasher_update(ctx, tmp->merkle_tmp, 1);
     zb_check_canary();
+    // only X from secp256k1 1[X][Y]
     blake3_hasher_update(ctx, answer->publicKey + 1, 32);
     zb_check_canary();
     blake3_hasher_finalize_seek(ctx, tmp->hash_pk);
     zb_check_canary();
 
-    zb_check_canary();
     zb_deallocate();
     zb_check_canary();
 
@@ -97,6 +100,7 @@ uint16_t crypto_fillAddress_secp256k1_transfer() {
         hrp = COIN_TESTNET_BECH32_HRP;
     }
 
+    // Encode last 20 bytes from the blake3 hash
     const zxerr_t err = bech32EncodeFromBytes(
         answer->address, sizeof_field(answer_t, address),
         hrp,
@@ -185,13 +189,32 @@ typedef struct {
 
 } __attribute__((packed)) signature_t;
 
+void hash_blake3(uint8_t *message_digest, const uint8_t *message, uint16_t messageLen) {
+    zemu_log_stack("hash_blake3");
+
+    // Generate TX digest before signing
+    zb_allocate(sizeof(blake3_hasher));
+    blake3_hasher *ctx;
+    zb_get((uint8_t **)&ctx);
+
+    blake3_hasher_init(ctx);
+    zb_check_canary();
+    blake3_hasher_update(ctx, message, messageLen);
+    zb_check_canary();
+    blake3_hasher_finalize_seek(ctx, message_digest);
+    zb_check_canary();
+
+    zb_deallocate();
+    zb_check_canary();
+}
+
 uint16_t crypto_sign(uint8_t *buffer, uint16_t signatureMaxlen, const uint8_t *message, uint16_t messageLen) {
-    uint8_t tmp[CX_SHA256_SIZE];
-    uint8_t message_digest[CX_SHA256_SIZE];
+    zemu_log_stack("crypto_sign");
 
-    cx_hash_sha256(message, messageLen, tmp, CX_SHA256_SIZE);
-    cx_hash_sha256(tmp, CX_SHA256_SIZE, message_digest, CX_SHA256_SIZE);
+    // The digest has been precalculated in the output buffer
+    uint8_t *message_digest = G_io_apdu_buffer;
 
+    /// Now sign
     cx_ecfp_private_key_t cx_privateKey;
     uint8_t privateKeyData[32];
     int signatureLength;
@@ -216,7 +239,7 @@ uint16_t crypto_sign(uint8_t *buffer, uint16_t signatureMaxlen, const uint8_t *m
                                             CX_RND_RFC6979 | CX_LAST,
                                             CX_SHA256,
                                             message_digest,
-                                            CX_SHA256_SIZE,
+                                            32,
                                             signature->der_signature,
                                             sizeof_field(signature_t, der_signature),
                                             &info);

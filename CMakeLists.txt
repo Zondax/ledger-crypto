@@ -34,12 +34,12 @@ add_definitions(-DAPP_VARIANT_CRO)
 file(GLOB_RECURSE BLAKE3_SRC
         ${CMAKE_CURRENT_SOURCE_DIR}/deps/BLAKE3_minimal/blake3.c
         ${CMAKE_CURRENT_SOURCE_DIR}/deps/BLAKE3_minimal/blake3_portable.c
-        ${CMAKE_CURRENT_SOURCE_DIR}/deps/BLAKE3_minimal/blake3_dispatch.c
         )
 
 file(GLOB_RECURSE LIB_SRC
         ${CMAKE_CURRENT_SOURCE_DIR}/deps/ledger-zxlib/src/hexutils.c
         ${CMAKE_CURRENT_SOURCE_DIR}/deps/ledger-zxlib/src/bignum.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/deps/ledger-zxlib/app/common/zbuffer.c
         ${CMAKE_CURRENT_SOURCE_DIR}/deps/ledger-zxlib/src/zxmacros.c
         ${CMAKE_CURRENT_SOURCE_DIR}/deps/ledger-zxlib/hexutils.c
         #########

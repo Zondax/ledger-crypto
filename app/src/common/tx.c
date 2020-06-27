@@ -20,6 +20,7 @@
 #include "parser.h"
 #include <string.h>
 #include "zxmacros.h"
+#include "zbuffer.h"
 
 #if defined(TARGET_NANOX)
 #define RAM_BUFFER_SIZE 8192
@@ -74,10 +75,16 @@ uint8_t *tx_get_buffer() {
 }
 
 const char *tx_parse() {
+    parser_tx_t* tx_obj;
+
+    zb_allocate( sizeof(parser_tx_t) );
+    zb_get((uint8_t **) &tx_obj);
+
     uint8_t err = parser_parse(
         &ctx_parsed_tx,
         tx_get_buffer(),
-        tx_get_buffer_length());
+        tx_get_buffer_length(),
+        tx_obj);
 
     if (err != parser_ok) {
         return parser_getErrorDescription(err);
@@ -91,6 +98,10 @@ const char *tx_parse() {
     }
 
     return NULL;
+}
+
+void tx_parse_reset() {
+    zb_deallocate();
 }
 
 tx_error_t tx_getNumItems(uint8_t *num_items) {

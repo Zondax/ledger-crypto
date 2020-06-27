@@ -7,7 +7,8 @@
 *
 *      http://www.apache.org/licenses/LICENSE-2.0
 *
-*  Unless required by applicable law or agreed to in writing, software
+*  Unless required by applicabl
+ *  e law or agreed to in writing, software
 *  distributed under the License is distributed on an "AS IS" BASIS,
 *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 *  See the License for the specific language governing permissions and
@@ -20,18 +21,23 @@
 #include <algorithm>
 #include <hexutils.h>
 
-testcaseData_t ReadRawTestCase(const std::shared_ptr<Json::Value> &jsonSource, int index) {
+testcaseData_t ReadTestCaseData(const std::shared_ptr<Json::Value> &jsonSource, int index) {
     testcaseData_t answer;
+    auto v = (*jsonSource)[index];
+
+    answer.valid = v["valid"].asBool();
+    answer.encoded_tx = v["tx"].asString();
+
+    assert(answer.encoded_tx.size() % 2 == 0);
+    answer.blob = std::vector<uint8_t>(answer.encoded_tx.size() / 2);
+    auto byteCount = parseHexString(answer.blob.data(), answer.blob.size(), answer.encoded_tx.c_str());
+    assert(answer.encoded_tx.size() == byteCount * 2);
+
+    for (const auto& s : v["expected_output"]) {
+        answer.expected_ui_output.push_back(s.asString());
+    }
 
     return answer;
-}
-
-testcaseData_t ReadTestCaseData(const std::shared_ptr<Json::Value> &jsonSource, int index) {
-    testcaseData_t tcd = ReadRawTestCase(jsonSource, index);
-
-    // Anotate with expected ui output
-    tcd.expected_ui_output = GenerateExpectedUIOutput(tcd);
-    return tcd;
 }
 
 std::vector<testcase_t> GetJsonTestCases(const std::string &filename) {

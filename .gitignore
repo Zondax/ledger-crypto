@@ -81,7 +81,6 @@ cmake-build-fuzz/
 !\deps/nanos-secure-sdk
 \deps/nano2-sdk
 !\deps/ledger-zxlib
-!\deps/BLAKE2
 !\deps/BLAKE3
 /build
 yarn.lock

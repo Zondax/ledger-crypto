@@ -15,6 +15,8 @@
 ********************************************************************************/
 #pragma once
 
+#include "parser_txdef.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -59,6 +61,7 @@ typedef struct {
     const uint8_t *buffer;
     uint16_t bufferLen;
     uint16_t offset;
+    parser_tx_t *tx_obj;
 } parser_context_t;
 
 #ifdef __cplusplus
