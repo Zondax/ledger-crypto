@@ -70,9 +70,9 @@ uint16_t crypto_fillAddress_secp256k1_transfer() {
         return 0;
     }
 
-    answer_t *const answer = (answer_t *) ADDRESS_BUFFER;
-    address_temp_t *const tmp = (address_temp_t *) (ADDRESS_BUFFER + sizeof(answer_t));
-    crypto_extractPublicKey(hdPath, answer->publicKey, sizeof_field(answer_t, publicKey));
+#define ANSWER ((answer_t *) ADDRESS_BUFFER)
+#define TMP ((address_temp_t *) (ADDRESS_BUFFER + sizeof(answer_t)))
+    crypto_extractPublicKey(hdPath, ANSWER->publicKey, sizeof_field(answer_t, publicKey));
 
     zemu_log_stack("fill_address_transfer");
 
@@ -84,12 +84,12 @@ uint16_t crypto_fillAddress_secp256k1_transfer() {
     blake3_hasher_init(ctx);
     zb_check_canary();
     // Merkle prefix
-    blake3_hasher_update(ctx, tmp->merkle_tmp, 1);
+    blake3_hasher_update(ctx, TMP->merkle_tmp, 1);
     zb_check_canary();
     // only X from secp256k1 1[X][Y]
-    blake3_hasher_update(ctx, answer->publicKey + 1, 32);
+    blake3_hasher_update(ctx, ANSWER->publicKey + 1, 32);
     zb_check_canary();
-    blake3_hasher_finalize_seek(ctx, tmp->hash_pk);
+    blake3_hasher_finalize_seek(ctx, TMP->hash_pk);
     zb_check_canary();
 
     zb_deallocate();
@@ -102,9 +102,9 @@ uint16_t crypto_fillAddress_secp256k1_transfer() {
 
     // Encode last 20 bytes from the blake3 hash
     const zxerr_t err = bech32EncodeFromBytes(
-        answer->address, sizeof_field(answer_t, address),
+        ANSWER->address, sizeof_field(answer_t, address),
         hrp,
-        tmp->hash_pk, sizeof_field(address_temp_t, hash_pk),
+        TMP->hash_pk, sizeof_field(address_temp_t, hash_pk),
         1
     );
 
@@ -113,7 +113,10 @@ uint16_t crypto_fillAddress_secp256k1_transfer() {
     }
 
     CHECK_APP_CANARY();
-    return PK_LEN_SECP256K1_UNCOMPRESSED + strlen(answer->address);
+
+    return PK_LEN_SECP256K1_UNCOMPRESSED + strlen(ANSWER->address);
+#undef ANSWER
+#undef TMP
 }
 
 uint16_t crypto_fillAddress_secp256k1_staking() {

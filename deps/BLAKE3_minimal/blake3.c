@@ -80,7 +80,9 @@ void output_chaining_value(const output_t *self, uint8_t cv[32]) {
     memcpy(cv, cv_words, 32);
 }
 
-void output_root_bytes(const output_t *self, uint64_t seek, uint8_t *out, size_t out_len) {
+inline void output_root_bytes(const output_t *self, uint64_t seek, uint8_t *out, size_t out_len) {
+    zemu_log_stack("blake3_hasher_finalize_seek::root 3");
+
     uint64_t output_block_counter = seek / 64;
     size_t offset_within_block = seek % 64;
     uint8_t wide_buf[64];
@@ -430,8 +432,9 @@ void hasher_push_cv(blake3_hasher *self, uint8_t new_cv[BLAKE3_OUT_LEN],
     self->cv_stack_len += 1;
 }
 
-void blake3_hasher_update(blake3_hasher *self, const void *input,
-                          size_t input_len) {
+void blake3_hasher_update(blake3_hasher *self, const void *input, size_t input_len) {
+    zemu_log_stack("blake3_hasher_update");
+
     // Explicitly checking for zero avoids causing UB by passing a null pointer
     // to memcpy. This comes up in practice with things like:
     //   std::vector<uint8_t> v;
@@ -547,6 +550,8 @@ void blake3_hasher_finalize_seek(const blake3_hasher *self, uint8_t *out) {
 //    if (out_len == 0) {
 //        return;
 //    }
+
+    zemu_log_stack("blake3_hasher_finalize_seek");
 
     output_t output;
 
