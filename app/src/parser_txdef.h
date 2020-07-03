@@ -43,8 +43,10 @@ typedef uint64_t cro_coin_t;
 typedef uint64_t cro_timespec_t;
 typedef uint64_t cro_app_version_t;
 
+#define CRO_EXTENDED_ADDRESS_BYTES 32
 #define CRO_REDEEM_ADDRESS_BYTES 20
 #define CRO_ED25519_PUBKEY_SIZE  32
+#define CRO_SECP256K1_PUBKEY_SIZE 33
 
 typedef struct {
     // CRO_REDEEM_ADDRESS_BYTES
@@ -55,6 +57,16 @@ typedef struct {
     // CRO_ED25519_PUBKEY_SIZE
     const uint8_t *_ptr;
 } cro_edd25519_pubkey_t;
+
+typedef struct {
+    // CRO_SECP256K1_PUBKEY_SIZE
+    const uint8_t *_ptr;
+} cro_secp256k1_pubkey_t;
+
+typedef struct {
+    // CRO_EXTENDED_ADDRESS_BYTES
+    const uint8_t *_ptr;
+} cro_extended_address_t;
 
 typedef cro_redeem_address_t cro_staked_state_address_t;
 
@@ -67,7 +79,7 @@ typedef struct {
 typedef pd_Bytes_t cro_validator_name_t;
 
 typedef struct  {
-    uint8_t hasValue;
+    uint8_t has_value;
     pd_Bytes_t security_contact;
 } cro_option_validator_security_contact_t;
 
@@ -90,17 +102,26 @@ typedef struct {
     cro_confidential_init_t confidential_init;
 } cro_council_node_t;
 
-typedef pd_Bytes_t cro_tx_access_t;
+typedef struct {
+    // 0 = All Data
+    uint8_t value;
+} cro_tx_access_t;
 
 typedef struct {
-    cro_tendermint_validator_pubkey_t key;
+    cro_secp256k1_pubkey_t key;
     cro_tx_access_t access;
 } cro_access_policy_t;
 
+typedef struct{
+    uint64_t _len;
+    const uint8_t *_ptr;
+    uint64_t _lenBuffer;
+} cro_vector_access_policy_t;
+
 typedef struct {
     uint8_t chain_id;
-    cro_access_policy_t allowed_view[10];
-    uint64_t app_version;
+    cro_vector_access_policy_t allowed_view;
+    cro_app_version_t app_version;
 } cro_tx_attributes_t;
 
 typedef struct{
@@ -110,9 +131,14 @@ typedef struct{
 } cro_vector_tx_out_t;
 
 typedef struct {
-    cro_redeem_address_t address;
+    uint8_t has_value;
+    cro_timespec_t value;
+} cro_option_timespec_t;
+
+typedef struct {
+    cro_extended_address_t address;
     cro_coin_t  value;
-    cro_timespec_t valid_from;
+    cro_option_timespec_t valid_from;
 } cro_tx_out_t;
 
 ////////////////////////////////////////
@@ -141,10 +167,10 @@ typedef struct {
     cro_council_node_t node_meta;
 } cro_node_join_request_tx_t;
 
-// PlainTxAux - WithdrawUnboundedStakeTx (WithdrawUnboundedTx)
+// TxAuxEnclave - WithdrawUnboundedTx
 typedef struct {
     cro_nonce_t nonce;
-    cro_vector_tx_out_t address;
+    cro_vector_tx_out_t outputs;
     cro_tx_attributes_t attributes;
 } cro_withdraw_unbonded_tx_t;
 
@@ -152,23 +178,18 @@ typedef struct {
 /////////////////////
 /////////////////////
 
-#define CRO_TX_AUX_ENUM_ENCLAVE_TX              0
-#define CRO_TX_AUX_ENUM_PUBLIC_TX               1
+#define CRO_TX_AUX_ENCLAVE_TRANSFER_TX                   0
+#define CRO_TX_AUX_ENCLAVE_DEPOSIT_STAKE                 1
+#define CRO_TX_AUX_ENCLAVE_WITHDRAW_UNBOUNDED_STAKE      2
 
-#define CRO_TX_PUBLIC_AUX_UNBOND_STAKE          0
-#define CRO_TX_PUBLIC_AUX_UNJAIL                1
-#define CRO_TX_PUBLIC_AUX_NODE_JOIN             2
-
-#define CRO_TX_PLAIN_TX_TRANSFER                0
-#define CRO_TX_DEPOSIT_STAKE                    1
-#define CRO_TX_WITHDRAW_UNBOUNDED_STAKE         2
-
+#define CRO_TX_AUX_PUBLIC_AUX_UNBOND_STAKE               0
+#define CRO_TX_AUX_PUBLIC_AUX_UNJAIL                     1
+#define CRO_TX_AUX_PUBLIC_AUX_NODE_JOIN                  2
 
 typedef struct {
     // 0 - Enclave Tx
     // 1 - TxPlug
     uint8_t txAuxEnumType;
-
     uint8_t txType;
     union {
         // Tx Public Aux
@@ -176,7 +197,7 @@ typedef struct {
         cro_unjail_tx_t cro_unjail_tx;
         cro_node_join_request_tx_t cro_node_join_request_tx;
 
-        // PlainTxAux
+        // Tx Enclave Aux
         cro_withdraw_unbonded_tx_t cro_withdraw_unbounded_tx;
     };
 

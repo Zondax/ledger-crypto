@@ -16,6 +16,7 @@
 
 #include <stdio.h>
 #include <zxmacros.h>
+#include <timeutils.h>
 #include "parser_impl.h"
 #include "parser.h"
 #include "coin.h"
@@ -29,10 +30,13 @@ void __assert_fail(const char * assertion, const char * file, unsigned int line,
 #endif
 
 parser_error_t parser_parse(parser_context_t *ctx, const uint8_t *data, size_t dataLen, parser_tx_t *tx_obj) {
+    // Drop witness here:
     CHECK_PARSER_ERR(parser_init(ctx, data, dataLen))
     ctx->tx_obj = tx_obj;
     parser_error_t err = _read(ctx, ctx->tx_obj);
+    CTX_CHECK_AVAIL(ctx, 0)
     zb_check_canary();
+
     return err;
 }
 
@@ -80,10 +84,42 @@ __Z_INLINE parser_error_t parser_print_coin(const cro_coin_t *v,
     return parser_ok;
 }
 
+__Z_INLINE parser_error_t parser_print_extended_address(const cro_extended_address_t *v,
+                                                        char *outVal, uint16_t outValLen,
+                                                        uint8_t pageIdx, uint8_t *pageCount) {
+    char buffer[CRO_EXTENDED_ADDRESS_BYTES * 2 + 1];
+    MEMZERO(buffer, sizeof(buffer));
+
+    if (array_to_hexstr(buffer, sizeof(buffer), v->_ptr, CRO_EXTENDED_ADDRESS_BYTES) != CRO_EXTENDED_ADDRESS_BYTES * 2)
+        return parser_invalid_address;
+
+    pageStringExt(outVal, outValLen, buffer, CRO_EXTENDED_ADDRESS_BYTES * 2, pageIdx, pageCount);
+    return parser_ok;
+}
+
+__Z_INLINE parser_error_t parser_print_secp256k1_pubkey(const cro_secp256k1_pubkey_t *v,
+                                                        char *outVal, uint16_t outValLen,
+                                                        uint8_t pageIdx, uint8_t *pageCount) {
+    char buffer[CRO_SECP256K1_PUBKEY_SIZE * 2 + 1];
+    MEMZERO(buffer, sizeof(buffer));
+
+    if (array_to_hexstr(buffer, sizeof(buffer), v->_ptr, CRO_SECP256K1_PUBKEY_SIZE) != CRO_SECP256K1_PUBKEY_SIZE * 2)
+        return parser_invalid_address;
+
+    pageStringExt(outVal, outValLen, buffer, CRO_SECP256K1_PUBKEY_SIZE * 2, pageIdx, pageCount);
+    return parser_ok;
+}
+
+__Z_INLINE parser_error_t parser_print_valid_from(const cro_timespec_t *v,
+                                                  char *outVal, uint16_t outValLen,
+                                                  uint8_t pageIdx, uint8_t *pageCount) {
+    printTime(outVal, outValLen, *v);
+    return parser_ok;
+}
+
 __Z_INLINE parser_error_t parser_print_appVersion(const cro_app_version_t *v,
                                                   char *outVal, uint16_t outValLen,
                                                   uint8_t pageIdx, uint8_t *pageCount) {
-    // FIXME: how to format coins
     char bufferUI[100];
     uint64_to_str(bufferUI, sizeof(bufferUI), *v);
     pageString(outVal, outValLen, bufferUI, pageIdx, pageCount);
@@ -96,10 +132,10 @@ __Z_INLINE parser_error_t parser_print_staked_state_address(const cro_staked_sta
     char buffer[50];
     MEMZERO(buffer, sizeof(buffer));
 
-    if (array_to_hexstr(buffer, sizeof(buffer), v->_ptr, 20) != 40)
+    if (array_to_hexstr(buffer, sizeof(buffer), v->_ptr, CRO_REDEEM_ADDRESS_BYTES) != 2 * CRO_REDEEM_ADDRESS_BYTES)
         return parser_invalid_address;
 
-    pageStringExt(outVal, outValLen, buffer, 40, pageIdx, pageCount);
+    pageStringExt(outVal, outValLen, buffer, 2 * CRO_REDEEM_ADDRESS_BYTES, pageIdx, pageCount);
     return parser_ok;
 }
 
@@ -113,7 +149,7 @@ __Z_INLINE parser_error_t parser_print_council_node_validator_name(const cro_val
 __Z_INLINE parser_error_t parser_print_council_node_security_contact(const cro_option_validator_security_contact_t *v,
                                                                      char *outVal, uint16_t outValLen,
                                                                      uint8_t pageIdx, uint8_t *pageCount) {
-    if (!v->hasValue) {
+    if (!v->has_value) {
         snprintf(outVal, outValLen, "<EMPTY>");
         return parser_ok;
     }
@@ -164,18 +200,6 @@ __Z_INLINE parser_error_t parser_print_council_node_confidential_init(const cro_
 
     uint64_to_str(bufferUI + 7, sizeof(bufferUI) - 7, v->_len);
     pageString(outVal, outValLen, bufferUI, pageIdx, pageCount);
-    return parser_ok;
-}
-
-__Z_INLINE parser_error_t parser_print_vector_tx_out(const cro_vector_tx_out_t *v,
-                                                     char *outVal, uint16_t outValLen,
-                                                     uint8_t pageIdx, uint8_t *pageCount) {
-    return parser_ok;
-}
-
-__Z_INLINE parser_error_t parser_print_tx_attributes(const cro_tx_attributes_t *v,
-                                                     char *outVal, uint16_t outValLen,
-                                                     uint8_t pageIdx, uint8_t *pageCount) {
     return parser_ok;
 }
 
@@ -295,24 +319,110 @@ __Z_INLINE parser_error_t parser_getItem_withdraw_unbounded(const cro_withdraw_u
                                                             char *outKey, uint16_t outKeyLen,
                                                             char *outVal, uint16_t outValLen,
                                                             uint8_t pageIdx, uint8_t *pageCount) {
-    switch (displayIdx) {
-        case 0:
-            *pageCount = 1;
-            snprintf(outKey, outKeyLen, "Type");
-            snprintf(outVal, outValLen, "Withdraw unbounded");
-            return parser_ok;
-        case 1:
-            snprintf(outKey, outKeyLen, "Nonce");
-            return parser_print_nonce(&v->nonce, outVal, outValLen, pageIdx, pageCount);
-        case 2:
-            snprintf(outKey, outKeyLen, "Address");
-            return parser_print_vector_tx_out(&v->address, outVal, outValLen, pageIdx, pageCount);
-        case 3:
-            snprintf(outKey, outKeyLen, "Attributes");
-            return parser_print_tx_attributes(&v->attributes, outVal, outValLen, pageIdx, pageCount);
-        default:
-            return parser_no_data;
+    const uint16_t fixStartCount = 2; // Type + Nonce
+    const uint16_t addressItemCount = v->outputs._len * 3;
+    const uint16_t accessPolicyItemCount = v->attributes.allowed_view._len * 2;
+    const uint16_t attributesItemCount = 2 + accessPolicyItemCount;
+
+    const uint16_t itemCount = fixStartCount + addressItemCount + accessPolicyItemCount + attributesItemCount;
+
+    if (displayIdx < 0 || displayIdx > itemCount) {
+        return parser_no_data;
     }
+
+    if (displayIdx == 0) {
+        *pageCount = 1;
+        snprintf(outKey, outKeyLen, "Type");
+        snprintf(outVal, outValLen, "Withdraw unbounded");
+        return parser_ok;
+    }
+
+    if (displayIdx == 1) {
+        snprintf(outKey, outKeyLen, "Nonce");
+        return parser_print_nonce(&v->nonce, outVal, outValLen, pageIdx, pageCount);
+    }
+
+    displayIdx -= fixStartCount;
+
+    if (displayIdx < addressItemCount) {
+        const uint8_t addressIdx = displayIdx % 3;
+        const uint8_t addressItemIdx = displayIdx / 3;
+
+        cro_tx_out_t p;
+        parser_context_t ctx;
+        parser_init(&ctx, v->outputs._ptr, v->outputs._lenBuffer);
+        if (addressItemIdx >= v->outputs._len) return parser_no_data;
+        for (uint64_t i = 0; i < addressItemIdx + 1; i++) CHECK_PARSER_ERR(_read_cro_tx_out(&ctx, &p));
+
+        switch (addressIdx) {
+            case 0: {
+                snprintf(outKey, outKeyLen, "Addr %02d", addressItemIdx + 1);
+                return parser_print_extended_address(&p.address, outVal, outValLen, pageIdx, pageCount);
+            }
+            case 1: {
+                snprintf(outKey, outKeyLen, "Addr %02d Value", addressItemIdx + 1);
+                return parser_print_coin(&p.value, outVal, outValLen, pageIdx, pageCount);
+            }
+            case 2: {
+                snprintf(outKey, outKeyLen, "Addr %02d Valid From", addressItemIdx + 1);
+                if (!p.valid_from.has_value) {
+                    snprintf(outVal, outValLen, "Unrestricted");
+                    return parser_ok;
+                } else {
+                    return parser_print_valid_from(&p.valid_from.value, outVal, outValLen, pageIdx, pageCount);
+                }
+            }
+        }
+        return parser_ok;
+    }
+
+    displayIdx -= addressItemCount;
+
+    if (displayIdx == 0) {
+        snprintf(outKey, outKeyLen, "ChainID");
+        snprintf(outVal, outValLen, "%02x", v->attributes.chain_id);
+        return parser_ok;
+    }
+
+    displayIdx -= 1;
+
+    if (displayIdx < accessPolicyItemCount) {
+        const uint8_t addressIdx = displayIdx % 2;
+        const uint8_t addressItemIdx = displayIdx / 2;
+
+        cro_access_policy_t p;
+        parser_context_t ctx;
+        parser_init(&ctx, v->attributes.allowed_view._ptr, v->attributes.allowed_view._lenBuffer);
+        if (addressItemIdx >= v->attributes.allowed_view._len) return parser_no_data;
+        for (uint64_t i = 0; i < addressItemIdx + 1; i++) CHECK_PARSER_ERR(_read_cro_access_policy(&ctx, &p));
+
+        switch (addressIdx) {
+            case 0: {
+                snprintf(outKey, outKeyLen, "Allow %02d", addressItemIdx + 1);
+                return parser_print_secp256k1_pubkey(&p.key, outVal, outValLen, pageIdx, pageCount);
+            }
+            case 1: {
+                snprintf(outKey, outKeyLen, "Allow %02d", addressItemIdx + 1);
+                switch(p.access.value) {
+                    case 0:
+                        snprintf(outVal, outValLen, "All Data");
+                        return parser_ok;
+                    default:
+                        return parser_value_out_of_range;
+                }
+            }
+        }
+        return parser_ok;
+    }
+
+    displayIdx -= accessPolicyItemCount;
+
+    if (displayIdx == 0) {
+        snprintf(outKey, outKeyLen, "AppVersion");
+        return parser_print_appVersion(&v->attributes.app_version, outVal, outValLen, pageIdx, pageCount);
+    }
+
+    return parser_no_data;
 }
 
 parser_error_t parser_getItem(const parser_context_t *ctx,
@@ -335,33 +445,50 @@ parser_error_t parser_getItem(const parser_context_t *ctx,
     }
 
     switch (ctx->tx_obj->txAuxEnumType) {
-        case CRO_TX_AUX_ENUM_ENCLAVE_TX:
-            return parser_no_data;
+        case CRO_TX_AUX_ENUM_ENCLAVE_TX: {
+            switch (ctx->tx_obj->txType) {
+                case CRO_TX_AUX_ENCLAVE_WITHDRAW_UNBOUNDED_STAKE: CHECK_PARSER_ERR(
+                        parser_getItem_withdraw_unbounded(&ctx->tx_obj->cro_withdraw_unbounded_tx,
+                                                          displayIdx,
+                                                          outKey, outKeyLen,
+                                                          outVal, outValLen,
+                                                          pageIdx, pageCount))
+                    break;
+                default:
+                    return parser_no_data;
+            }
+            break;
+        }
         case CRO_TX_AUX_ENUM_PUBLIC_TX: {
             switch (ctx->tx_obj->txType) {
-                case CRO_TX_PUBLIC_AUX_UNBOND_STAKE: CHECK_PARSER_ERR(
+                case CRO_TX_AUX_PUBLIC_AUX_UNBOND_STAKE: CHECK_PARSER_ERR(
                         parser_getItem_unbound_stake(&ctx->tx_obj->cro_unbound_stake_tx,
                                                      displayIdx,
                                                      outKey, outKeyLen,
                                                      outVal, outValLen,
                                                      pageIdx, pageCount))
                     break;
-                case CRO_TX_PUBLIC_AUX_UNJAIL: CHECK_PARSER_ERR(
+                case CRO_TX_AUX_PUBLIC_AUX_UNJAIL: CHECK_PARSER_ERR(
                         parser_getItem_unjail(&ctx->tx_obj->cro_unjail_tx,
                                               displayIdx,
                                               outKey, outKeyLen,
                                               outVal, outValLen,
                                               pageIdx, pageCount))
                     break;
-                case CRO_TX_PUBLIC_AUX_NODE_JOIN: CHECK_PARSER_ERR(
+                case CRO_TX_AUX_PUBLIC_AUX_NODE_JOIN: CHECK_PARSER_ERR(
                         parser_getItem_node_join_request(&ctx->tx_obj->cro_node_join_request_tx,
                                                          displayIdx,
                                                          outKey, outKeyLen,
                                                          outVal, outValLen,
                                                          pageIdx, pageCount))
                     break;
+                default:
+                    return parser_no_data;
             }
+            break;
         }
+        default:
+            return parser_no_data;
     }
 
     if (*pageCount > 1) {
