@@ -491,12 +491,5 @@ parser_error_t parser_getItem(const parser_context_t *ctx,
             return parser_no_data;
     }
 
-    if (*pageCount > 1) {
-        uint8_t keyLen = strlen(outKey);
-        if (keyLen < outKeyLen) {
-            snprintf(outKey + keyLen, outKeyLen - keyLen, " [%d/%d]", pageIdx + 1, *pageCount);
-        }
-    }
-
     return parser_ok;
 }

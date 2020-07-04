@@ -136,8 +136,8 @@ void h_review_loop_start() {
 
     view_error_t err = h_review_update_data();
     switch(err) {
-        case view_no_error:
-        case view_no_data:
+        case zxerr_ok:
+        case zxerr_no_data:
             break;
         case view_error_detected:
         default:
@@ -159,10 +159,10 @@ void h_review_loop_end() {
         view_error_t err = h_review_update_data();
 
         switch(err) {
-            case view_no_error:
+            case zxerr_ok:
                 ux_layout_bnnn_paging_reset();
                 break;
-            case view_no_data: {
+            case zxerr_no_data: {
                 flow_inside_loop = 0;
                 ux_flow_next();
                 return;
@@ -178,8 +178,8 @@ void h_review_loop_end() {
         view_error_t err = h_review_update_data();
 
         switch(err) {
-            case view_no_error:
-            case view_no_data:
+            case zxerr_ok:
+            case zxerr_no_data:
                 break;
             case view_error_detected:
             default:
