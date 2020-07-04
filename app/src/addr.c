@@ -38,7 +38,7 @@ zxerr_t addr_getItem(int8_t displayIdx,
     switch (displayIdx) {
         case 0:
             snprintf(outKey, outKeyLen, "Your Address");
-            pageString(outVal, outValLen, G_io_apdu_buffer + VIEW_ADDRESS_OFFSET_SECP256K1, pageIdx, pageCount);
+            pageString(outVal, outValLen, (char *) (G_io_apdu_buffer + VIEW_ADDRESS_OFFSET_SECP256K1), pageIdx, pageCount);
             return zxerr_ok;
         case 1: {
             if (!app_mode_expert()) {
