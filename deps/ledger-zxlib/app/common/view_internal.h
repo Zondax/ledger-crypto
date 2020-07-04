@@ -112,7 +112,3 @@ void h_paging_decrease();
 void h_paging_set_page_count(uint8_t pageCount);
 
 zxerr_t h_review_update_data();
-
-zxerr_t view_printAddr();
-
-zxerr_t view_printPath();

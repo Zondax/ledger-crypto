@@ -141,12 +141,5 @@ zxerr_t tx_getItem(int8_t displayIdx,
     if (err != parser_ok)
         return zxerr_unknown;
 
-    if (*pageCount > 1) {
-        uint8_t keyLen = strlen(outKey);
-        if (keyLen < outKeyLen) {
-            snprintf(outKey + keyLen, outKeyLen - keyLen, " [%d/%d]", pageIdx + 1, *pageCount);
-        }
-    }
-
     return zxerr_ok;
 }
