@@ -123,8 +123,36 @@ describe('Basic checks', function () {
             await Zemu.sleep(1000);
             await sim.clickRight();
             await sim.clickRight();
+            await sim.clickBoth();
+
+            const response = await addrRequest;
+            console.log(response)
+            expect(response.returnCode).toEqual(0x9000);
+
+            const expected_publicKey = "04db0c6d56193c5b12fa2588d4254db1eb90d502852f3bd71beb8cd7d5eda3747cae746dfc75bfcbc48c1664fc494828daf6683e9fa331875ac894d8a2a296aa7e";
+            const expected_address = "cro1d0dxrfy0jf4mr0tnrkdaaay3v706z5hfdhw42ac8f20jd9w7u9lsrqcfjz";
+
+            expect(response.publicKey.toString('hex')).toEqual(expected_publicKey);
+            expect(response.address).toEqual(expected_address);
+        } finally {
+            await sim.close();
+        }
+    });
+
+    test('show address - transfer - expert', async function () {
+        const sim = new Zemu(APP_PATH);
+        try {
+            await sim.start(simOptions);
+            const app = new CryptoApp(sim.getTransport());
+
+            await sim.clickRight();
+            await sim.clickBoth();
+
+            const addrRequest = app.showAddressAndPubKey("m/44'/394'/0'/0/1");
+            await Zemu.sleep(1000);
             await sim.clickRight();
             await sim.clickRight();
+            await sim.clickBoth();
             await sim.clickBoth();
 
             const response = await addrRequest;
@@ -179,8 +207,6 @@ describe('Basic checks', function () {
             await Zemu.sleep(1000);
             await sim.clickRight();
             await sim.clickRight();
-            await sim.clickRight();
-            await sim.clickRight();
             await sim.clickBoth();
 
             const response = await addrRequest;
@@ -205,8 +231,6 @@ describe('Basic checks', function () {
 
             const addrRequest = app.showAddressAndPubKey("m/44'/1'/1'/0/1");
             await Zemu.sleep(1000);
-            await sim.clickRight();
-            await sim.clickRight();
             await sim.clickRight();
             await sim.clickRight();
             await sim.clickBoth();
