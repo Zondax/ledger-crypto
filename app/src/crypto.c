@@ -19,9 +19,6 @@
 #include "zxmacros.h"
 #include "rslib.h"
 #include "bech32.h"
-#include "blake3.h"
-#include "blake3_impl.h"
-#include "zbuffer.h"
 #include "cx.h"
 
 uint32_t hdPath[HDPATH_LEN_DEFAULT];
@@ -191,25 +188,6 @@ typedef struct {
     uint8_t der_signature[73];
 
 } __attribute__((packed)) signature_t;
-
-void hash_blake3(uint8_t *message_digest, const uint8_t *message, uint16_t messageLen) {
-    zemu_log_stack("hash_blake3");
-
-    // Generate TX digest before signing
-    zb_allocate(sizeof(blake3_hasher));
-    blake3_hasher *ctx;
-    zb_get((uint8_t **)&ctx);
-
-    blake3_hasher_init(ctx);
-    zb_check_canary();
-    blake3_hasher_update(ctx, message, messageLen);
-    zb_check_canary();
-    blake3_hasher_finalize_seek(ctx, message_digest);
-    zb_check_canary();
-
-    zb_deallocate();
-    zb_check_canary();
-}
 
 uint16_t crypto_sign(uint8_t *buffer, uint16_t signatureMaxlen, const uint8_t *message, uint16_t messageLen) {
     zemu_log_stack("crypto_sign");
