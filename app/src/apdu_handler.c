@@ -35,7 +35,7 @@ __Z_INLINE void handleGetAddrSecp256K1(volatile uint32_t *flags, volatile uint32
 
     if (requireConfirmation) {
         app_fill_address(addr_secp256k1);
-        view_address_show(addr_secp256k1);
+        view_address_show();
         *flags |= IO_ASYNCH_REPLY;
         return;
     }

@@ -19,7 +19,6 @@
 #include "zxmacros.h"
 #include "rslib.h"
 #include "bech32.h"
-#include "cx.h"
 
 uint32_t hdPath[HDPATH_LEN_DEFAULT];
 
@@ -27,6 +26,10 @@ bool isTestnet() {
     return hdPath[0] == HDPATH_0_TESTNET &&
            hdPath[1] == HDPATH_1_TESTNET;
 }
+
+#if defined(TARGET_NANOS) || defined(TARGET_NANOX)
+#include "cx.h"
+#endif
 
 typedef struct {
     uint8_t publicKey[PK_LEN_SECP256K1_UNCOMPRESSED];

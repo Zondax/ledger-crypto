@@ -47,7 +47,7 @@ COIN=CRO
 endif
 
 APPVERSION_M=0
-APPVERSION_N=4
+APPVERSION_N=5
 APPVERSION_P=0
 
 $(info COIN  = [$(COIN)])
@@ -175,8 +175,6 @@ APP_SOURCE_PATH += $(MY_DIR)/../deps/ledger-zxlib/app/common
 APP_SOURCE_PATH += $(MY_DIR)/../deps/BLAKE3_minimal
 
 SDK_SOURCE_PATH += lib_stusb lib_stusb_impl
-
-#SDK_SOURCE_PATH  += lib_blewbxx lib_blewbxx_impl
 SDK_SOURCE_PATH  += lib_ux
 
 .PHONY: rust
@@ -191,6 +189,8 @@ bin/app.elf: rust
 rust_clean:
 	@echo "No rust code"
 	#cd rust && CARGO_HOME="$(CURDIR)/rust/.cargo" cargo clean
+
+clean: rust_clean
 
 # load, delete and listvariants are provided to comply with Ledger requirements
 .PHONY: load

@@ -16,11 +16,11 @@
 
 #include <stdio.h>
 #include <zxmacros.h>
-#include <timeutils.h>
 #include "parser_impl.h"
+#include "zbuffer.h"
 #include "parser.h"
 #include "coin.h"
-#include "zbuffer.h"
+#include <timeutils.h>
 
 #if defined(TARGET_NANOX)
 // For some reason NanoX requires this function
@@ -489,13 +489,6 @@ parser_error_t parser_getItem(const parser_context_t *ctx,
         }
         default:
             return parser_no_data;
-    }
-
-    if (*pageCount > 1) {
-        uint8_t keyLen = strlen(outKey);
-        if (keyLen < outKeyLen) {
-            snprintf(outKey + keyLen, outKeyLen - keyLen, " [%d/%d]", pageIdx + 1, *pageCount);
-        }
     }
 
     return parser_ok;
