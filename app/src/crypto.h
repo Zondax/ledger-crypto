@@ -16,16 +16,17 @@
 
 #pragma once
 
-#include <zxmacros.h>
-#include "coin.h"
-#include <stdbool.h>
-#include <sigutils.h>
-
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#define CHECKSUM_LENGTH             4
+#include <zxmacros.h>
+#include "coin.h"
+#include <stdbool.h>
+#include <sigutils.h>
+#include "blake3.h"
+#include "blake3_impl.h"
+#include "zbuffer.h"
 
 extern uint32_t hdPath[HDPATH_LEN_DEFAULT];
 
@@ -35,10 +36,25 @@ bool isTestnet();
 
 void crypto_extractPublicKey(const uint32_t path[HDPATH_LEN_DEFAULT], uint8_t *pubKey, uint16_t pubKeyLen);
 
+__Z_INLINE void hash_blake3(uint8_t *message_digest, const uint8_t *message, uint16_t messageLen) {
+    // Generate TX digest before signing
+    zb_allocate(sizeof(blake3_hasher));
+    blake3_hasher *ctx;
+    zb_get((uint8_t **)&ctx);
+
+    blake3_hasher_init(ctx);
+    zb_check_canary();
+    blake3_hasher_update(ctx, message, messageLen);
+    zb_check_canary();
+    blake3_hasher_finalize_seek(ctx, message_digest);
+    zb_check_canary();
+
+    zb_deallocate();
+    zb_check_canary();
+}
+
 uint16_t crypto_fillAddress_secp256k1_transfer();
 uint16_t crypto_fillAddress_secp256k1_staking();
-
-void hash_blake3(uint8_t *message_digest, const uint8_t *message, uint16_t messageLen);
 
 uint16_t crypto_sign(uint8_t *signature,
                      uint16_t signatureMaxlen,

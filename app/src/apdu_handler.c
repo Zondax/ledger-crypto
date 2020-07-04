@@ -45,16 +45,29 @@ __Z_INLINE void handleGetAddrSecp256K1(volatile uint32_t *flags, volatile uint32
 }
 
 void calculateDigest() {
-    // FIXME: We need to improve this
-    // [ two bytes header ] [ tx payload ] [ prefix+secp256k1 signature ]
-    // [ prefix+secp256k1 signature ] = [ u32 ] [ 64 bytes ]
-    //  2 bytes [....] 68 bytes
+    // we need to precalculate otherwise we won't have memory later on
+    MEMZERO(G_io_apdu_buffer, sizeof(G_io_apdu_buffer));
 
-    // we need to precalculate otherwise we won't have memory afterwards
-    if (tx_get_buffer_length() > 2 + 66) {
-        // precalculate blake3 hash
-//        uint8_t message_digest[32];
-        hash_blake3(G_io_apdu_buffer, tx_get_buffer() + 2, tx_get_buffer_length() - 2 - 66);
+    if (tx_get_buffer_length() > CRO_HEADER_SIZE) {
+        // [ two bytes header ] [ tx payload ] [ prefix+secp256k1 signature ]
+        // ----------------------------------- [ u32    ] [     64 bytes    ]
+        //  2 bytes [....] 68 bytes
+
+        uint16_t digestLen = tx_get_buffer_length() - CRO_HEADER_SIZE;
+
+        uint8_t *p = (uint8_t *) tx_get_buffer();
+        if (*p == CRO_TX_AUX_ENUM_PUBLIC_TX) {
+            if (tx_get_buffer_length() < CRO_HEADER_SIZE + CRO_WITNESS_SIZE) {
+                // Not enough information to hash. The message is invalid
+                return;
+            }
+            digestLen -= CRO_WITNESS_SIZE;
+        }
+
+        if (tx_get_buffer_length() > digestLen ) {
+            // precalculate blake3 hash
+            hash_blake3(G_io_apdu_buffer, tx_get_buffer() + CRO_HEADER_SIZE, digestLen);
+        }
     }
 }
 

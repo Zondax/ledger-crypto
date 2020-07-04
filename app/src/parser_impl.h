@@ -23,6 +23,10 @@
 extern "C" {
 #endif
 
+parser_error_t _readCompactInt(parser_context_t *c, compactInt_t *v);
+parser_error_t _read_cro_tx_out(parser_context_t *c, cro_tx_out_t *v);
+parser_error_t _read_cro_access_policy(parser_context_t *c, cro_access_policy_t *v);
+
 // Checks that there are at least SIZE bytes available in the buffer
 #define CTX_CHECK_AVAIL(CTX, SIZE) \
     if ( (CTX) == NULL || ((CTX)->offset + SIZE) > (CTX)->bufferLen) { return parser_unexpected_buffer_end; }
@@ -61,6 +65,15 @@ extern "C" {
     v->_lenBuffer = c->offset;                                      \
     for (uint64_t i = 0; i < v->_len; i++ ) CHECK_PARSER_ERR(_read_cro_##TYPE(c, &dummy));  \
     v->_lenBuffer = c->offset - v->_lenBuffer;                      \
+    return parser_ok;
+
+#define GEN_DEF_READVECTOR_ITEM(VEC, TYPE, INDEX, VALUE)            \
+    parser_context_t ctx;                                           \
+    parser_init(&ctx, VEC._ptr, VEC._lenBuffer);                    \
+    compactInt_t clen;                                              \
+    CHECK_PARSER_ERR(_readCompactInt(&ctx, &clen));                 \
+    if ((INDEX) >= VEC._len) return parser_no_data;                 \
+    for (uint64_t i = 0; i < VEC._len; i++ ) CHECK_PARSER_ERR(_read_cro_##TYPE(&ctx, &VALUE));  \
     return parser_ok;
 
 #define GEN_DEF_TOSTRING_VECTOR(TYPE) \

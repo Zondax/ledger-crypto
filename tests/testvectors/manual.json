@@ -91,27 +91,25 @@
       "7 | Val Pubkey [3/3] : 3daa62325af021a68f707511a",
       "8 | Conf Init : bytes: 16543"
     ]
+  },
+  {
+    "description": "withdraw_unbonded",
+    "comment" : "nonce 0, coins 1000",
+    "valid": true,
+    "tx": "00020000000000000000040009cbc2ce0dd314d5a7c658c866a4faf2d8510c6912313859eee908322bd7daf5e803000000000000010000000000000000000004036b3e5b7744134ac0556ace88b098a057014afb82701b1b1ba49ea04b09fea29b000100000000000000",
+    "tx_id": "e83d1e15bc3d4d80e7c61d00623af277cc792f503794e096fe8e4434371318b3",
+    "expected_output": [
+      "0 | Type : Withdraw unbounded",
+      "1 | Nonce : 0",
+      "2 | Addr 01 [1/2] : 09cbc2ce0dd314d5a7c658c866a4faf2d8510c6",
+      "2 | Addr 01 [2/2] : 912313859eee908322bd7daf5",
+      "3 | Addr 01 Value : 1000",
+      "4 | Addr 01 Valid From : 01Jan1970 00:00:00",
+      "5 | ChainID : 00",
+      "6 | Allow 01 [1/2] : 036b3e5b7744134ac0556ace88b098a057014af",
+      "6 | Allow 01 [2/2] : b82701b1b1ba49ea04b09fea29b",
+      "7 | Allow 01 : All Data",
+      "8 | AppVersion : 1"
+    ]
   }
-//,
-//  {
-//    "description": "withdraw_unbonded",
-//    "comment" : "nonce 0, coins 1000",
-//    "valid": true,
-//    "tx": "020000000000000000040009cbc2ce0dd314d5a7c658c866a4faf2d8510c6912313859eee908322bd7daf5e803000000000000010000000000000000000004036b3e5b7744134ac0556ace88b098a057014afb82701b1b1ba49ea04b09fea29b000100000000000000",
-//    "tx_id": "e83d1e15bc3d4d80e7c61d00623af277cc792f503794e096fe8e4434371318b3",
-//    "expected_output": [
-//      "0 | Type : Node Join Req.",
-//      "1 | Nonce : 1",
-//      "2 | Address [1/2] : 410afb0ccf51aefd111bceafb6c298acd4decaf",
-//      "2 | Address [2/2] : 6",
-//      "3 | ChainID : 2a",
-//      "4 | AppVersion : 1",
-//      "5 | Name : example",
-//      "6 | Sec Contact : security@example.com",
-//      "7 | Val Pubkey [1/3] : Ed25519",
-//      "7 | Val Pubkey [2/3] : d75a980182b10ab7d54bfed3c964073a0ee172f",
-//      "7 | Val Pubkey [3/3] : 3daa62325af021a68f707511a",
-//      "8 | Conf Init : bytes: 16543"
-//    ]
-//  }
 ]
