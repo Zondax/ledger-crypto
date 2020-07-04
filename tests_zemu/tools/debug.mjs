@@ -26,7 +26,10 @@ async function beforeEnd() {
 }
 
 async function debugScenario1(sim, app) {
-    const response = await app.getAddressAndPubKey("m/44'/394'/0'/0/0");
+    const response = app.showAddressAndPubKey("m/44'/394'/0'/0/0");
+    await Zemu.default.sleep(2000);
+    await sim.clickBoth();
+    await response;
     console.log(response)
 }
 
