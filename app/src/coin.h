@@ -16,7 +16,6 @@
 #pragma once
 
 #define CRO_HEADER_SIZE 2
-#define CRO_WITNESS_SIZE 66
 #define CRO_TX_AUX_ENUM_ENCLAVE_TX                       0
 #define CRO_TX_AUX_ENUM_PUBLIC_TX                        1
 

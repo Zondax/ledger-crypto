@@ -22,8 +22,7 @@ std::vector<std::string> dumpUI(parser_context_t *ctx,
                                 uint16_t maxKeyLen,
                                 uint16_t maxValueLen) {
     uint8_t numItems;
-    parser_error_t err = parser_getNumItems(ctx, &numItems);
-
+    parser_getNumItems(ctx, &numItems);
     auto answer = std::vector<std::string>();
 
     for (uint16_t idx = 0; idx < numItems; idx++) {

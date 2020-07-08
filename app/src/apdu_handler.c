@@ -49,21 +49,12 @@ void calculateDigest() {
     MEMZERO(G_io_apdu_buffer, sizeof(G_io_apdu_buffer));
 
     if (tx_get_buffer_length() > CRO_HEADER_SIZE) {
-        // [ two bytes header ] [ tx payload ] [ prefix+secp256k1 signature ]
-        // ----------------------------------- [ u32    ] [     64 bytes    ]
-        //  2 bytes [....] 68 bytes
-
+        // [ two bytes header ] [ tx payload ]
+        // -----------------------------------
+        //  2 bytes [....]
         uint16_t digestLen = tx_get_buffer_length() - CRO_HEADER_SIZE;
 
         uint8_t *p = (uint8_t *) tx_get_buffer();
-        if (*p == CRO_TX_AUX_ENUM_PUBLIC_TX) {
-            if (tx_get_buffer_length() < CRO_HEADER_SIZE + CRO_WITNESS_SIZE) {
-                // Not enough information to hash. The message is invalid
-                return;
-            }
-            digestLen -= CRO_WITNESS_SIZE;
-        }
-
         if (tx_get_buffer_length() > digestLen ) {
             // precalculate blake3 hash
             hash_blake3(G_io_apdu_buffer, tx_get_buffer() + CRO_HEADER_SIZE, digestLen);
