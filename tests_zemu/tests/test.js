@@ -120,7 +120,9 @@ describe('Basic checks', function () {
             const app = new CryptoApp(sim.getTransport());
 
             const addrRequest = app.showAddressAndPubKey("m/44'/394'/0'/0/1");
-            await Zemu.sleep(1000);
+            // Wait until we are not in the main menu
+            await sim.waitUntilScreenIsNot(sim.getMainMenuSnapshot(), 20000);
+
             await sim.clickRight();
             await sim.clickRight();
             await sim.clickBoth();
@@ -149,7 +151,9 @@ describe('Basic checks', function () {
             await sim.clickBoth();
 
             const addrRequest = app.showAddressAndPubKey("m/44'/394'/0'/0/1");
-            await Zemu.sleep(1000);
+            // Wait until we are not in the main menu
+            await sim.waitUntilScreenIsNot(sim.getMainMenuSnapshot(), 20000);
+
             await sim.clickRight();
             await sim.clickRight();
             await sim.clickBoth();
@@ -176,7 +180,9 @@ describe('Basic checks', function () {
             const app = new CryptoApp(sim.getTransport());
 
             const addrRequest = app.showAddressAndPubKey("m/44'/1'/0'/0/1");
-            await Zemu.sleep(1000);
+            // Wait until we are not in the main menu
+            await sim.waitUntilScreenIsNot(sim.getMainMenuSnapshot(), 20000);
+
             await sim.clickRight();
             await sim.clickRight();
             await sim.clickRight();
@@ -204,7 +210,9 @@ describe('Basic checks', function () {
             const app = new CryptoApp(sim.getTransport());
 
             const addrRequest = app.showAddressAndPubKey("m/44'/394'/1'/0/1");
-            await Zemu.sleep(1000);
+            // Wait until we are not in the main menu
+            await sim.waitUntilScreenIsNot(sim.getMainMenuSnapshot(), 20000);
+
             await sim.clickRight();
             await sim.clickRight();
             await sim.clickBoth();
@@ -230,7 +238,9 @@ describe('Basic checks', function () {
             const app = new CryptoApp(sim.getTransport());
 
             const addrRequest = app.showAddressAndPubKey("m/44'/1'/1'/0/1");
-            await Zemu.sleep(1000);
+            // Wait until we are not in the main menu
+            await sim.waitUntilScreenIsNot(sim.getMainMenuSnapshot(), 20000);
+
             await sim.clickRight();
             await sim.clickRight();
             await sim.clickBoth();
@@ -256,14 +266,14 @@ describe('Basic checks', function () {
             const app = new CryptoApp(sim.getTransport());
 
             const path = "m/44'/394'/1'/0/1";
-            const blobStr = "010000bce02627ca9daa2af92412cb9998aa59df1270790000000000000000e803000000000000000001000000000000000001686d772b75f229beb68b761432148eaa762d6bc38d89cc76b90799e1cea7d0ab34b5dd4740a0a1dc06f4d7f25f9747b8b6c14e50a6176cc6e55e9f3005556cc2"
+            const blobStr = "010000bce02627ca9daa2af92412cb9998aa59df1270790000000000000000e80300000000000000000100000000000000"
             const blob = Buffer.from(blobStr, "hex")
 
             const addrResponse = await app.getAddressAndPubKey(path);
             console.log(addrResponse)
 
             const pk = Uint8Array.from(addrResponse.publicKey)
-            const blobToHash = blob.slice(2, blob.length - 66)
+            const blobToHash = blob.slice(2, blob.length)
             const msgHash = Uint8Array.from(blake3
                 .newRegular()
                 .update(blobToHash)
@@ -273,7 +283,8 @@ describe('Basic checks', function () {
 
             // Do not await.. we need to click asynchronously
             const signatureRequest = app.sign(path, blob);
-            await Zemu.sleep(2000);
+            // Wait until we are not in the main menu
+            await sim.waitUntilScreenIsNot(sim.getMainMenuSnapshot(), 20000);
 
             await sim.clickRight();
             await sim.clickRight();
