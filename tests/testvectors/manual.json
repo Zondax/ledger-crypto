@@ -104,7 +104,7 @@
       "2 | Addr 01 [1/2] : 09cbc2ce0dd314d5a7c658c866a4faf2d8510c6",
       "2 | Addr 01 [2/2] : 912313859eee908322bd7daf5",
       "3 | Addr 01 Value : 1000",
-      "4 | Addr 01 Valid From : 01Jan1970 00:00:00",
+      "4 | Addr 01 Valid From : 01Jan1970 00:00:00UTC",
       "5 | ChainID : 00",
       "6 | Allow 01 [1/2] : 036b3e5b7744134ac0556ace88b098a057014af",
       "6 | Allow 01 [2/2] : b82701b1b1ba49ea04b09fea29b",

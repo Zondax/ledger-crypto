@@ -266,7 +266,7 @@ describe('Basic checks', function () {
             const app = new CryptoApp(sim.getTransport());
 
             const path = "m/44'/394'/1'/0/1";
-            const blobStr = "010000bce02627ca9daa2af92412cb9998aa59df1270790000000000000000e80300000000000000000100000000000000"
+            const blobStr = "00020000000000000000040009cbc2ce0dd314d5a7c658c866a4faf2d8510c6912313859eee908322bd7daf5e803000000000000010000000000000000000004036b3e5b7744134ac0556ace88b098a057014afb82701b1b1ba49ea04b09fea29b000100000000000000"
             const blob = Buffer.from(blobStr, "hex")
 
             const addrResponse = await app.getAddressAndPubKey(path);
