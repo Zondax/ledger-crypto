@@ -48,17 +48,14 @@ void calculateDigest() {
     // we need to precalculate otherwise we won't have memory later on
     MEMZERO(G_io_apdu_buffer, sizeof(G_io_apdu_buffer));
 
+    zemu_log_stack("calculateDigest");
     if (tx_get_buffer_length() > CRO_HEADER_SIZE) {
         // [ two bytes header ] [ tx payload ]
         // -----------------------------------
         //  2 bytes [....]
-        uint16_t digestLen = tx_get_buffer_length() - CRO_HEADER_SIZE;
-
-        uint8_t *p = (uint8_t *) tx_get_buffer();
-        if (tx_get_buffer_length() > digestLen ) {
-            // precalculate blake3 hash
-            hash_blake3(G_io_apdu_buffer, tx_get_buffer() + CRO_HEADER_SIZE, digestLen);
-        }
+        // precalculate blake3 hash
+        zemu_log_stack("hash_blake3");
+        hash_blake3(G_io_apdu_buffer, tx_get_buffer() + CRO_HEADER_SIZE, tx_get_buffer_length() - CRO_HEADER_SIZE);
     }
 }
 
@@ -111,6 +108,7 @@ void handleApdu(volatile uint32_t *flags, volatile uint32_t *tx, uint32_t rx) {
                 }
 
                 case INS_SIGN_SECP256K1: {
+                    zemu_log_stack("INS_SIGN_SECP256K1");
                     handleSignSecp256K1(flags, tx, rx);
                     break;
                 }
