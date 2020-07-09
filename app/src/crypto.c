@@ -20,11 +20,9 @@
 #include "rslib.h"
 #include "bech32.h"
 
-uint32_t hdPath[HDPATH_LEN_DEFAULT];
-
-bool isTestnet() {
-    return hdPath[0] == HDPATH_0_TESTNET &&
-           hdPath[1] == HDPATH_1_TESTNET;
+bool isTestnet(const hdpath_t *path) {
+    return path->value[0] == HDPATH_0_TESTNET &&
+           path->value[1] == HDPATH_1_TESTNET;
 }
 
 #if defined(TARGET_NANOS) || defined(TARGET_NANOX)
@@ -38,7 +36,7 @@ typedef struct {
 } __attribute__((packed)) answer_t;
 
 typedef struct {
-    union{
+    union {
         uint8_t hash_pk[32];
         struct {
             uint8_t address_padding[12];
@@ -48,10 +46,10 @@ typedef struct {
     uint8_t merkle_tmp[1];
 } __attribute__((packed)) address_temp_t;
 
-void keccak(uint8_t *out, size_t out_len, uint8_t *in, size_t in_len){
+void keccak(uint8_t *out, size_t out_len, uint8_t *in, size_t in_len) {
     cx_sha3_t sha3;
     cx_keccak_init(&sha3, 256);
-    cx_hash((cx_hash_t*)&sha3, CX_LAST, in, in_len, out, out_len);
+    cx_hash((cx_hash_t * ) & sha3, CX_LAST, in, in_len, out, out_len);
 }
 
 #define ADDRESS_BUFFER G_io_apdu_buffer
@@ -66,7 +64,7 @@ uint16_t crypto_fillAddress_secp256k1_transfer() {
     // [   .... output buffer  |   260 bytes.... ]
     // [answer_t 125][..15..][address_temp_t 32][  ]
 
-    if (ADDRESS_BUFFER_LEN < sizeof(answer_t) + sizeof(address_temp_t) ) {
+    if (ADDRESS_BUFFER_LEN < sizeof(answer_t) + sizeof(address_temp_t)) {
         return 0;
     }
 
@@ -79,7 +77,7 @@ uint16_t crypto_fillAddress_secp256k1_transfer() {
     // Now hash public key with blake3
     zb_allocate(sizeof(blake3_hasher));
     blake3_hasher *ctx;
-    zb_get((uint8_t **)&ctx);
+    zb_get((uint8_t **) &ctx);
 
     blake3_hasher_init(ctx);
     zb_check_canary();
@@ -102,10 +100,10 @@ uint16_t crypto_fillAddress_secp256k1_transfer() {
 
     // Encode last 20 bytes from the blake3 hash
     const zxerr_t err = bech32EncodeFromBytes(
-        ANSWER->address, sizeof_field(answer_t, address),
-        hrp,
-        TMP->hash_pk, sizeof_field(address_temp_t, hash_pk),
-        1
+            ANSWER->address, sizeof_field(answer_t, address),
+            hrp,
+            TMP->hash_pk, sizeof_field(address_temp_t, hash_pk),
+            1
     );
 
     if (err != zxerr_ok) {
@@ -128,7 +126,7 @@ uint16_t crypto_fillAddress_secp256k1_staking() {
     // [   .... output buffer  |   260 bytes.... ]
     // [answer_t 125][..15..][address_temp_t 32][  ]
 
-    if (ADDRESS_BUFFER_LEN < sizeof(answer_t) + sizeof(address_temp_t) ) {
+    if (ADDRESS_BUFFER_LEN < sizeof(answer_t) + sizeof(address_temp_t)) {
         return 0;
     }
 
@@ -150,7 +148,7 @@ uint16_t crypto_fillAddress_secp256k1_staking() {
     return PK_LEN_SECP256K1_UNCOMPRESSED + 40;
 }
 
-void crypto_extractPublicKey(const uint32_t path[HDPATH_LEN_DEFAULT], uint8_t *pubKey, uint16_t pubKeyLen) {
+void crypto_extractPublicKey(const hdpath_t *path, uint8_t *pubKey, uint16_t pubKeyLen) {
     cx_ecfp_public_key_t cx_publicKey;
     cx_ecfp_private_key_t cx_privateKey;
     uint8_t privateKeyData[32];
@@ -161,17 +159,15 @@ void crypto_extractPublicKey(const uint32_t path[HDPATH_LEN_DEFAULT], uint8_t *p
 
     BEGIN_TRY
     {
-        TRY {
-            os_perso_derive_node_bip32(CX_CURVE_256K1,
-                                       path,
-                                       HDPATH_LEN_DEFAULT,
-                                       privateKeyData, NULL);
-
+        TRY
+        {
+            os_perso_derive_node_bip32(CX_CURVE_256K1, path, HDPATH_LEN_DEFAULT, privateKeyData, NULL);
             cx_ecfp_init_private_key(CX_CURVE_256K1, privateKeyData, 32, &cx_privateKey);
             cx_ecfp_init_public_key(CX_CURVE_256K1, NULL, 0, &cx_publicKey);
             cx_ecfp_generate_pair(CX_CURVE_256K1, &cx_publicKey, &cx_privateKey, 1);
         }
-        FINALLY {
+        FINALLY
+        {
             MEMZERO(&cx_privateKey, sizeof(cx_privateKey));
             MEMZERO(privateKeyData, 32);
         }
@@ -229,14 +225,15 @@ uint16_t crypto_sign(uint8_t *buffer, uint16_t signatureMaxlen, const uint8_t *m
                                             &info);
 
         }
-        FINALLY {
+        FINALLY
+        {
             MEMZERO(&cx_privateKey, sizeof(cx_privateKey));
             MEMZERO(privateKeyData, 32);
         }
     }
     END_TRY;
 
-    err_convert_e err = convertDERtoRSV(signature->der_signature, info,  signature->r, signature->s, &signature->v);
+    err_convert_e err = convertDERtoRSV(signature->der_signature, info, signature->r, signature->s, &signature->v);
     if (err != no_error) {
         // Error while converting so return length 0
         return 0;

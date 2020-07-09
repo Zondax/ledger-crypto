@@ -40,7 +40,7 @@ __Z_INLINE void app_sign() {
     }
 }
 
-__Z_INLINE uint8_t app_fill_address(address_kind_e kind) {
+__Z_INLINE uint8_t app_fill_address(const hdpath_t *path, address_kind_e kind) {
     // Put data directly in the apdu buffer
     MEMZERO(G_io_apdu_buffer, IO_APDU_BUFFER_SIZE);
 
@@ -49,12 +49,12 @@ __Z_INLINE uint8_t app_fill_address(address_kind_e kind) {
         return 0;
     }
 
-    if (hdPath[2] == HDPATH_2_ADDRESS_TRANSFER) {
+    if (path->value[2] == HDPATH_2_ADDRESS_TRANSFER) {
         action_addr_len = crypto_fillAddress_secp256k1_transfer(G_io_apdu_buffer, IO_APDU_BUFFER_SIZE - 2);
         return action_addr_len;
     }
 
-    if (hdPath[2] == HDPATH_2_ADDRESS_STAKING) {
+    if (path->value[2] == HDPATH_2_ADDRESS_STAKING) {
         action_addr_len = crypto_fillAddress_secp256k1_staking(G_io_apdu_buffer, IO_APDU_BUFFER_SIZE - 2);
         return action_addr_len;
     }

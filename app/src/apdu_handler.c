@@ -47,6 +47,7 @@ __Z_INLINE void handleGetAddrSecp256K1(volatile uint32_t *flags, volatile uint32
 void calculateDigest() {
     // we need to precalculate otherwise we won't have memory later on
     MEMZERO(G_io_apdu_buffer, sizeof(G_io_apdu_buffer));
+    zb_check_canary();
 
     zemu_log_stack("calculateDigest");
     if (tx_get_buffer_length() > CRO_HEADER_SIZE) {
@@ -56,6 +57,8 @@ void calculateDigest() {
         // precalculate blake3 hash
         zemu_log_stack("hash_blake3");
         hash_blake3(G_io_apdu_buffer, tx_get_buffer() + CRO_HEADER_SIZE, tx_get_buffer_length() - CRO_HEADER_SIZE);
+        zb_check_canary();
+        zemu_log_stack("hash_blake3 OK");
     }
 }
 
@@ -64,9 +67,11 @@ __Z_INLINE void handleSignSecp256K1(volatile uint32_t *flags, volatile uint32_t 
         THROW(APDU_CODE_OK);
     }
 
+    zb_check_canary();
     zemu_log_stack("handleSignSecp256K1");
     calculateDigest();
 
+    zb_check_canary();
     zemu_log_stack("Try parsing now");
     const char *error_msg = tx_parse();
 

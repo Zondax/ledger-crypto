@@ -27,13 +27,12 @@
 #define MAX_CHARS_PER_VALUE1_LINE   4096
 #define MAX_CHARS_HEXMESSAGE        160
 #else
-#define MAX_CHARS_PER_KEY_LINE      (32+1)
-#define MAX_CHARS_PER_VALUE_LINE    (18)
+#define MAX_CHARS_PER_KEY_LINE      (2+1)
+#define MAX_CHARS_PER_VALUE_LINE    (4)
 #define MAX_CHARS_PER_VALUE1_LINE   (2*MAX_CHARS_PER_VALUE_LINE+1)
 #define MAX_CHARS_PER_VALUE2_LINE   (MAX_CHARS_PER_VALUE_LINE+1)
 #define MAX_CHARS_HEXMESSAGE        40
 #endif
-#define MAX_CHARS_ADDR              (MAX_CHARS_PER_KEY_LINE + MAX_CHARS_PER_VALUE1_LINE)
 
 // This takes data from G_io_apdu_buffer that is prefilled with the address
 
@@ -50,9 +49,6 @@ typedef struct {
 #if defined(TARGET_NANOS)
             char value2[MAX_CHARS_PER_VALUE2_LINE];
 #endif
-        };
-        struct {
-            char addr[MAX_CHARS_ADDR];
         };
     };
     review_mode_e mode;

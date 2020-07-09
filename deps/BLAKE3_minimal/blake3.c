@@ -1,6 +1,7 @@
 #include <assert.h>
 #include <stdbool.h>
 #include <string.h>
+#include <zxmacros.h>
 
 #include "blake3.h"
 #include "blake3_impl.h"
@@ -80,7 +81,7 @@ void output_chaining_value(const output_t *self, uint8_t cv[32]) {
     memcpy(cv, cv_words, 32);
 }
 
-void output_root_bytes(const output_t *self, uint64_t seek, uint8_t *out, size_t out_len) {
+inline void output_root_bytes(const output_t *self, uint64_t seek, uint8_t *out, size_t out_len) {
     uint64_t output_block_counter = seek / 64;
     size_t offset_within_block = seek % 64;
     uint8_t wide_buf[64];
@@ -122,6 +123,7 @@ void chunk_state_update(blake3_chunk_state *self, const uint8_t *input, size_t i
         blake3_compress_in_place_portable(self->cv, input, BLAKE3_BLOCK_LEN,
                                           self->chunk_counter,
                                           self->flags | chunk_state_maybe_start_flag(self));
+        CHECK_APP_CANARY()
         self->blocks_compressed += 1;
         input += BLAKE3_BLOCK_LEN;
         input_len -= BLAKE3_BLOCK_LEN;
