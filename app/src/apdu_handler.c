@@ -113,7 +113,6 @@ void handleApdu(volatile uint32_t *flags, volatile uint32_t *tx, uint32_t rx) {
                 }
 
                 case INS_SIGN_SECP256K1: {
-                    zemu_log_stack("INS_SIGN_SECP256K1");
                     handleSignSecp256K1(flags, tx, rx);
                     break;
                 }

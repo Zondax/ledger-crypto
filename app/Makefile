@@ -85,6 +85,9 @@ ifeq ($(TARGET_NAME),TARGET_NANOX)
 ICONNAME:=$(CURDIR)/nanox_icon.gif
 endif
 
+$(info TARGET_NAME  = [$(TARGET_NAME)])
+$(info ICONNAME  = [$(ICONNAME)])
+
 ifndef ICONNAME
 $(error ICONNAME is not set)
 endif
@@ -160,8 +163,8 @@ AFLAGS +=
 
 LD       := $(GCCPATH)arm-none-eabi-gcc
 LDFLAGS  += -O3 -Os
-LDLIBS   += -lm -lgcc -lc
 #LDFLAGS  += -z muldefs
+LDLIBS   += -lm -lgcc -lc
 #LDLIBS   += -Lrust/target/thumbv6m-none-eabi/release -lrslib -lm -lgcc -lc
 
 ##########################
