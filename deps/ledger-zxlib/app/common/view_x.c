@@ -193,9 +193,9 @@ void h_expert_toggle() {
 }
 
 void h_expert_update() {
-    snprintf(viewdata.value, MAX_CHARS_PER_VALUE_LINE, "disabled");
+    snprintf(viewdata.value, MAX_CHARS_PER_VALUE1_LINE, "disabled");
     if (app_mode_expert()) {
-        snprintf(viewdata.value, MAX_CHARS_PER_VALUE_LINE, "enabled");
+        snprintf(viewdata.value, MAX_CHARS_PER_VALUE1_LINE, "enabled");
     }
 }
 
