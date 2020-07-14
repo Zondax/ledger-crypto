@@ -53,7 +53,7 @@ const char *parser_getErrorDescription(parser_error_t err) {
             return "display_idx_out_of_range";
         case parser_display_page_out_of_range:
             return "display_page_out_of_range";
-        case parser_unexepected_error:
+        case parser_unexpected_error:
             return "Unexepected internal error";
             /////////// Context specific
         case parser_context_mismatch:
