@@ -27,6 +27,7 @@
 #include "crypto.h"
 #include "coin.h"
 #include "zxmacros.h"
+#include "zbuffer.h"
 
 unsigned char G_io_seproxyhal_spi_buffer[IO_SEPROXYHAL_BUFFER_SIZE_B];
 
@@ -95,19 +96,19 @@ void extractHDPath(uint32_t rx, uint32_t offset) {
         THROW(APDU_CODE_WRONG_LENGTH);
     }
 
-    MEMCPY(hdPath, G_io_apdu_buffer + offset, sizeof(uint32_t) * HDPATH_LEN_DEFAULT);
+    MEMCPY_NV(N_hdpath.value, G_io_apdu_buffer + offset, sizeof(uint32_t) * HDPATH_LEN_DEFAULT);
 
     const bool mainnet =
-            hdPath[0] == HDPATH_0_DEFAULT &&
-            hdPath[1] == HDPATH_1_DEFAULT &&
-            (hdPath[2] == HDPATH_2_ADDRESS_TRANSFER || hdPath[2] == HDPATH_2_ADDRESS_STAKING) &&
-            hdPath[3] == HDPATH_3_CHANGE;
+            N_hdpath.value[0] == HDPATH_0_DEFAULT &&
+            N_hdpath.value[1] == HDPATH_1_DEFAULT &&
+            (N_hdpath.value[2] == HDPATH_2_ADDRESS_TRANSFER || N_hdpath.value[2] == HDPATH_2_ADDRESS_STAKING) &&
+            N_hdpath.value[3] == HDPATH_3_CHANGE;
 
     const bool testnet =
-            hdPath[0] == HDPATH_0_TESTNET &&
-            hdPath[1] == HDPATH_1_TESTNET &&
-            (hdPath[2] == HDPATH_2_ADDRESS_TRANSFER || hdPath[2] == HDPATH_2_ADDRESS_STAKING) &&
-            hdPath[3] == HDPATH_3_CHANGE;
+            N_hdpath.value[0] == HDPATH_0_TESTNET &&
+            N_hdpath.value[1] == HDPATH_1_TESTNET &&
+            (N_hdpath.value[2] == HDPATH_2_ADDRESS_TRANSFER || N_hdpath.value[2] == HDPATH_2_ADDRESS_STAKING) &&
+            N_hdpath.value[3] == HDPATH_3_CHANGE;
 
     if (!mainnet && !testnet) {
         THROW(APDU_CODE_DATA_INVALID);
@@ -152,7 +153,7 @@ bool process_chunk(volatile uint32_t *tx, uint32_t rx) {
 void handle_generic_apdu(volatile uint32_t *flags, volatile uint32_t *tx, uint32_t rx) {
     if (rx > 4 && os_memcmp(G_io_apdu_buffer, "\xE0\x01\x00\x00", 4) == 0) {
         // Respond to get device info command
-        uint8_t *p = G_io_apdu_buffer;
+        uint8_t * p = G_io_apdu_buffer;
         // Target ID        4 bytes
         p[0] = (TARGET_ID >> 24) & 0xFF;
         p[1] = (TARGET_ID >> 16) & 0xFF;
@@ -176,60 +177,21 @@ void handle_generic_apdu(volatile uint32_t *flags, volatile uint32_t *tx, uint32
 
 void app_init() {
     io_seproxyhal_init();
+
+#ifdef TARGET_NANOX
+    // grab the current plane mode setting
+    G_io_app.plane_mode = os_setting_get(OS_SETTING_PLANEMODE, NULL, 0);
+#endif // TARGET_NANOX
+
     USB_power(0);
     USB_power(1);
     view_idle_show(0);
+
+#ifdef HAVE_BLE
+    // Enable Bluetooth
+    BLE_power(0, NULL);
+    BLE_power(1, "Nano X");
+#endif // HAVE_BLE
+
+    zb_init();
 }
-
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wmissing-noreturn"
-
-void app_main() {
-    volatile uint32_t rx = 0, tx = 0, flags = 0;
-
-    for (;;) {
-        volatile uint16_t sw = 0;
-
-        BEGIN_TRY;
-        {
-            TRY;
-            {
-                rx = tx;
-                tx = 0;
-
-                rx = io_exchange(CHANNEL_APDU | flags, rx);
-                flags = 0;
-                CHECK_APP_CANARY()
-
-                if (rx == 0)
-                    THROW(APDU_CODE_EMPTY_BUFFER);
-
-                handle_generic_apdu(&flags, &tx, rx);
-                CHECK_APP_CANARY()
-
-                handleApdu(&flags, &tx, rx);
-                CHECK_APP_CANARY()
-            }
-            CATCH_OTHER(e);
-            {
-                switch (e & 0xF000) {
-                    case 0x6000:
-                    case 0x9000:
-                        sw = e;
-                        break;
-                    default:
-                        sw = 0x6800 | (e & 0x7FF);
-                        break;
-                }
-                G_io_apdu_buffer[tx] = sw >> 8;
-                G_io_apdu_buffer[tx + 1] = sw;
-                tx += 2;
-            }
-            FINALLY;
-            {}
-        }
-        END_TRY;
-    }
-}
-
-#pragma clang diagnostic pop

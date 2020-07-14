@@ -47,27 +47,18 @@ __Z_INLINE void handleGetAddrSecp256K1(volatile uint32_t *flags, volatile uint32
 void calculateDigest() {
     // we need to precalculate otherwise we won't have memory later on
     MEMZERO(G_io_apdu_buffer, sizeof(G_io_apdu_buffer));
+    zb_check_canary();
 
+    zemu_log_stack("calculateDigest");
     if (tx_get_buffer_length() > CRO_HEADER_SIZE) {
-        // [ two bytes header ] [ tx payload ] [ prefix+secp256k1 signature ]
-        // ----------------------------------- [ u32    ] [     64 bytes    ]
-        //  2 bytes [....] 68 bytes
-
-        uint16_t digestLen = tx_get_buffer_length() - CRO_HEADER_SIZE;
-
-        uint8_t *p = (uint8_t *) tx_get_buffer();
-        if (*p == CRO_TX_AUX_ENUM_PUBLIC_TX) {
-            if (tx_get_buffer_length() < CRO_HEADER_SIZE + CRO_WITNESS_SIZE) {
-                // Not enough information to hash. The message is invalid
-                return;
-            }
-            digestLen -= CRO_WITNESS_SIZE;
-        }
-
-        if (tx_get_buffer_length() > digestLen ) {
-            // precalculate blake3 hash
-            hash_blake3(G_io_apdu_buffer, tx_get_buffer() + CRO_HEADER_SIZE, digestLen);
-        }
+        // [ two bytes header ] [ tx payload ]
+        // -----------------------------------
+        //  2 bytes [....]
+        // precalculate blake3 hash
+        zemu_log_stack("hash_blake3");
+        hash_blake3(G_io_apdu_buffer, tx_get_buffer() + CRO_HEADER_SIZE, tx_get_buffer_length() - CRO_HEADER_SIZE);
+        zb_check_canary();
+        zemu_log_stack("hash_blake3 OK");
     }
 }
 
@@ -76,13 +67,18 @@ __Z_INLINE void handleSignSecp256K1(volatile uint32_t *flags, volatile uint32_t 
         THROW(APDU_CODE_OK);
     }
 
+    zb_check_canary();
     zemu_log_stack("handleSignSecp256K1");
     calculateDigest();
 
+    zb_check_canary();
     zemu_log_stack("Try parsing now");
+
+    tx_parse_reset();
     const char *error_msg = tx_parse();
 
     if (error_msg != NULL) {
+        tx_parse_reset();
         int error_msg_length = strlen(error_msg);
         MEMCPY(G_io_apdu_buffer, error_msg, error_msg_length);
         *tx += (error_msg_length);

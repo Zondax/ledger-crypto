@@ -17,7 +17,7 @@
   ],
   "dependencies": {
     "@zondax/ledger-crypto": "file:../js",
-    "@zondax/zemu": "^0.2"
+    "@zondax/zemu": "^0.3"
   },
   "devDependencies": {
     "@babel/cli": "^7.8.4",

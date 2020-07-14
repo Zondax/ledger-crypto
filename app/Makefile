@@ -47,7 +47,7 @@ COIN=CRO
 endif
 
 APPVERSION_M=0
-APPVERSION_N=5
+APPVERSION_N=6
 APPVERSION_P=0
 
 $(info COIN  = [$(COIN)])
@@ -84,6 +84,9 @@ endif
 ifeq ($(TARGET_NAME),TARGET_NANOX)
 ICONNAME:=$(CURDIR)/nanox_icon.gif
 endif
+
+$(info TARGET_NAME  = [$(TARGET_NAME)])
+$(info ICONNAME  = [$(ICONNAME)])
 
 ifndef ICONNAME
 $(error ICONNAME is not set)
@@ -160,8 +163,8 @@ AFLAGS +=
 
 LD       := $(GCCPATH)arm-none-eabi-gcc
 LDFLAGS  += -O3 -Os
-LDLIBS   += -lm -lgcc -lc
 #LDFLAGS  += -z muldefs
+LDLIBS   += -lm -lgcc -lc
 #LDLIBS   += -Lrust/target/thumbv6m-none-eabi/release -lrslib -lm -lgcc -lc
 
 ##########################

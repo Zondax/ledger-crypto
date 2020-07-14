@@ -26,6 +26,7 @@ extern "C" {
 
 #define CHECK_PARSER_ERR(CALL) { \
     parser_error_t err = CALL;  \
+    CHECK_APP_CANARY() \
     if (err!=parser_ok) return err;}
 
 typedef enum {
@@ -35,7 +36,7 @@ typedef enum {
     parser_init_context_empty,
     parser_display_idx_out_of_range,
     parser_display_page_out_of_range,
-    parser_unexepected_error,
+    parser_unexpected_error,
     // Context related errors
     parser_context_mismatch,
     parser_context_unexpected_size,

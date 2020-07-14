@@ -49,12 +49,12 @@ __Z_INLINE uint8_t app_fill_address(address_kind_e kind) {
         return 0;
     }
 
-    if (hdPath[2] == HDPATH_2_ADDRESS_TRANSFER) {
+    if (N_hdpath.value[2] == HDPATH_2_ADDRESS_TRANSFER) {
         action_addr_len = crypto_fillAddress_secp256k1_transfer(G_io_apdu_buffer, IO_APDU_BUFFER_SIZE - 2);
         return action_addr_len;
     }
 
-    if (hdPath[2] == HDPATH_2_ADDRESS_STAKING) {
+    if (N_hdpath.value[2] == HDPATH_2_ADDRESS_STAKING) {
         action_addr_len = crypto_fillAddress_secp256k1_staking(G_io_apdu_buffer, IO_APDU_BUFFER_SIZE - 2);
         return action_addr_len;
     }

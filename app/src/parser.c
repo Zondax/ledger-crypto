@@ -33,10 +33,18 @@ parser_error_t parser_parse(parser_context_t *ctx, const uint8_t *data, size_t d
     // Drop witness here:
     CHECK_PARSER_ERR(parser_init(ctx, data, dataLen))
     ctx->tx_obj = tx_obj;
+    zb_check_canary();
+
     parser_error_t err = _read(ctx, ctx->tx_obj);
     CTX_CHECK_AVAIL(ctx, 0)
     zb_check_canary();
 
+    // check that all byts were parsed
+    if (ctx->offset != ctx->bufferLen) {
+        return parser_unexpected_buffer_end;
+
+    }
+    zb_check_canary();
     return err;
 }
 

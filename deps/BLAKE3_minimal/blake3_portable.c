@@ -1,5 +1,6 @@
 #include "blake3_impl.h"
 #include <string.h>
+#include <zxmacros.h>
 
 void store32(void *dst, uint32_t w) {
   uint8_t *const p = (uint8_t *)dst;
@@ -87,6 +88,7 @@ void compress_pre(uint32_t state[16], const uint32_t cv[8],
   round_fn(state, &block_words[0], 4);
   round_fn(state, &block_words[0], 5);
   round_fn(state, &block_words[0], 6);
+  CHECK_APP_CANARY();
 }
 
 void blake3_compress_in_place_portable(uint32_t cv[8],
