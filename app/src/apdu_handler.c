@@ -73,9 +73,12 @@ __Z_INLINE void handleSignSecp256K1(volatile uint32_t *flags, volatile uint32_t 
 
     zb_check_canary();
     zemu_log_stack("Try parsing now");
+
+    tx_parse_reset();
     const char *error_msg = tx_parse();
 
     if (error_msg != NULL) {
+        tx_parse_reset();
         int error_msg_length = strlen(error_msg);
         MEMCPY(G_io_apdu_buffer, error_msg, error_msg_length);
         *tx += (error_msg_length);

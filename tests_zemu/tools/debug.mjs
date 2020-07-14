@@ -39,6 +39,10 @@ async function debugScenario2(sim, app) {
     const blobStr = "00020000000000000000040009cbc2ce0dd314d5a7c658c866a4faf2d8510c6912313859eee908322bd7daf5e803000000000000010000000000000000000004036b3e5b7744134ac0556ace88b098a057014afb82701b1b1ba49ea04b09fea29b000100000000000000"
     const blob = Buffer.from(blobStr, "hex")
 
+    // Enable expert mode
+    await sim.clickRight();
+    await sim.clickBoth();
+
     // Do not await.. we need to click asynchronously
     const signatureRequest = app.sign("m/44'/394'/0'/0/0", blob);
     await Zemu.default.sleep(2000);

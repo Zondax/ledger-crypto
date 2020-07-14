@@ -83,6 +83,7 @@ const char *tx_parse() {
             tx_obj);
 
     if (err != parser_ok) {
+        zb_deallocate();
         return parser_getErrorDescription(err);
     }
 
@@ -90,6 +91,7 @@ const char *tx_parse() {
     CHECK_APP_CANARY()
 
     if (err != parser_ok) {
+        zb_deallocate();
         return parser_getErrorDescription(err);
     }
 
