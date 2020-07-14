@@ -34,6 +34,11 @@ typedef struct {
     uint32_t value[HDPATH_LEN_DEFAULT];
 } hdpath_t;
 
+#if defined(TARGET_NANOS) || defined(TARGET_NANOX)
+extern hdpath_t NV_CONST N_hdpath_impl __attribute__ ((aligned(64)));
+#define N_hdpath (*(NV_VOLATILE hdpath_t *)PIC(&N_hdpath_impl))
+#endif
+
 bool isTestnet();
 
 void crypto_extractPublicKey(const hdpath_t *path, uint8_t *pubKey, uint16_t pubKeyLen);

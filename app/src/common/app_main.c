@@ -95,19 +95,19 @@ void extractHDPath(uint32_t rx, uint32_t offset) {
         THROW(APDU_CODE_WRONG_LENGTH);
     }
 
-    MEMCPY(hdPath, G_io_apdu_buffer + offset, sizeof(uint32_t) * HDPATH_LEN_DEFAULT);
+    MEMCPY_NV(N_hdpath.value, G_io_apdu_buffer + offset, sizeof(uint32_t) * HDPATH_LEN_DEFAULT);
 
     const bool mainnet =
-            hdPath[0] == HDPATH_0_DEFAULT &&
-            hdPath[1] == HDPATH_1_DEFAULT &&
-            (hdPath[2] == HDPATH_2_ADDRESS_TRANSFER || hdPath[2] == HDPATH_2_ADDRESS_STAKING) &&
-            hdPath[3] == HDPATH_3_CHANGE;
+            N_hdpath.value[0] == HDPATH_0_DEFAULT &&
+            N_hdpath.value[1] == HDPATH_1_DEFAULT &&
+            (N_hdpath.value[2] == HDPATH_2_ADDRESS_TRANSFER || N_hdpath.value[2] == HDPATH_2_ADDRESS_STAKING) &&
+            N_hdpath.value[3] == HDPATH_3_CHANGE;
 
     const bool testnet =
-            hdPath[0] == HDPATH_0_TESTNET &&
-            hdPath[1] == HDPATH_1_TESTNET &&
-            (hdPath[2] == HDPATH_2_ADDRESS_TRANSFER || hdPath[2] == HDPATH_2_ADDRESS_STAKING) &&
-            hdPath[3] == HDPATH_3_CHANGE;
+            N_hdpath.value[0] == HDPATH_0_TESTNET &&
+            N_hdpath.value[1] == HDPATH_1_TESTNET &&
+            (N_hdpath.value[2] == HDPATH_2_ADDRESS_TRANSFER || N_hdpath.value[2] == HDPATH_2_ADDRESS_STAKING) &&
+            N_hdpath.value[3] == HDPATH_3_CHANGE;
 
     if (!mainnet && !testnet) {
         THROW(APDU_CODE_DATA_INVALID);
@@ -152,7 +152,7 @@ bool process_chunk(volatile uint32_t *tx, uint32_t rx) {
 void handle_generic_apdu(volatile uint32_t *flags, volatile uint32_t *tx, uint32_t rx) {
     if (rx > 4 && os_memcmp(G_io_apdu_buffer, "\xE0\x01\x00\x00", 4) == 0) {
         // Respond to get device info command
-        uint8_t *p = G_io_apdu_buffer;
+        uint8_t * p = G_io_apdu_buffer;
         // Target ID        4 bytes
         p[0] = (TARGET_ID >> 24) & 0xFF;
         p[1] = (TARGET_ID >> 16) & 0xFF;
