@@ -125,6 +125,7 @@ describe('Basic checks', function () {
 
             await sim.clickRight();
             await sim.clickRight();
+            await sim.clickRight();
             await sim.clickBoth();
 
             const response = await addrRequest;
@@ -183,6 +184,7 @@ describe('Basic checks', function () {
             // Wait until we are not in the main menu
             await sim.waitUntilScreenIsNot(sim.getMainMenuSnapshot(), 20000);
 
+            await sim.clickRight();
             await sim.clickRight();
             await sim.clickRight();
             await sim.clickRight();
@@ -286,6 +288,10 @@ describe('Basic checks', function () {
             // Wait until we are not in the main menu
             await sim.waitUntilScreenIsNot(sim.getMainMenuSnapshot(), 20000);
 
+            await sim.clickRight();
+            await sim.clickRight();
+            await sim.clickRight();
+            await sim.clickRight();
             await sim.clickRight();
             await sim.clickRight();
             await sim.clickRight();
