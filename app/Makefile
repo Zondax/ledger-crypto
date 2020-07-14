@@ -48,7 +48,7 @@ endif
 
 APPVERSION_M=0
 APPVERSION_N=6
-APPVERSION_P=1
+APPVERSION_P=2
 
 $(info COIN  = [$(COIN)])
 ifeq ($(COIN),CRO)
