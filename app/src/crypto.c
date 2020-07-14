@@ -79,22 +79,15 @@ uint16_t crypto_fillAddress_secp256k1_transfer() {
     zemu_log_stack("fill_address_transfer");
 
     // Now hash public key with blake3
-    zb_allocate(sizeof(blake3_hasher));
-    blake3_hasher *ctx;
-    zb_get((uint8_t **) &ctx);
-
-    blake3_hasher_init(ctx);
-    zb_check_canary();
+    blake3_hasher ctx;
+    blake3_hasher_init(&ctx);
     // Merkle prefix
-    blake3_hasher_update(ctx, TMP->merkle_tmp, 1);
+    blake3_hasher_update(&ctx, TMP->merkle_tmp, 1);
     zb_check_canary();
     // only X from secp256k1 1[X][Y]
-    blake3_hasher_update(ctx, ANSWER->publicKey + 1, 32);
+    blake3_hasher_update(&ctx, ANSWER->publicKey + 1, 32);
     zb_check_canary();
-    blake3_hasher_finalize_seek(ctx, TMP->hash_pk);
-    zb_check_canary();
-
-    zb_deallocate();
+    blake3_hasher_finalize_seek(&ctx, TMP->hash_pk);
     zb_check_canary();
 
     const char *hrp = COIN_MAINNET_BECH32_HRP;
