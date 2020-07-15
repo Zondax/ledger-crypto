@@ -299,8 +299,6 @@ describe('Basic checks', function () {
             await sim.clickRight();
             await sim.clickRight();
             await sim.clickRight();
-            await sim.clickRight();
-            await sim.clickRight();
             await sim.clickBoth();
 
             let signatureResponse = await signatureRequest;
@@ -407,7 +405,6 @@ describe('Basic checks', function () {
             // Wait until we are not in the main menu
             await sim.waitUntilScreenIsNot(sim.getMainMenuSnapshot(), 20000);
 
-            await sim.clickRight();
             await sim.clickRight();
             await sim.clickRight();
             await sim.clickRight();
