@@ -218,12 +218,8 @@ export default class CryptoApp {
           signatureDER: null,
         };
 
-        console.log(` %%%%%%%%%%%  ${chunks.length}`);
-
         for (let i = 1; i < chunks.length; i += 1) {
           // eslint-disable-next-line no-await-in-loop
-          console.log(` %%%%%%%%%%%  ${i}/${chunks.length}`);
-
           result = await this.signSendChunk(1 + i, chunks.length, chunks[i]);
           if (result.returnCode !== ERROR_CODE.NoError) {
             break;
