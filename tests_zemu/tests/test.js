@@ -31,7 +31,7 @@ const simOptions = {
     , X11: true
 };
 
-jest.setTimeout(35000)
+jest.setTimeout(60000)
 
 function compareSnapshots(snapshotPrefixTmp, snapshotPrefixGolden, snapshotCount) {
     for (let i = 0; i < snapshotCount; i++) {
