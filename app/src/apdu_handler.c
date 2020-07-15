@@ -59,14 +59,27 @@ void calculateDigest() {
         zemu_log_stack("hash_blake3");
         blake3_hasher ctx;
         blake3_hasher_init(&ctx);
-        CHECK_APP_CANARY()
-        blake3_hasher_update(&ctx, tx_get_buffer() + CRO_HEADER_SIZE, tx_get_buffer_length() - CRO_HEADER_SIZE);
-        CHECK_APP_CANARY()
-        blake3_hasher_finalize_seek(&ctx, G_io_apdu_buffer);
-        CHECK_APP_CANARY()
-        zemu_log_stack("hash_blake3 Back");
         zb_check_canary();
-        zemu_log_stack("hash_blake3 OK");
+
+        // We need to split in chunks
+        const size_t total = tx_get_buffer_length() - CRO_HEADER_SIZE;
+        size_t remain = total;
+
+        while (remain > 0) {
+            if (remain < BLAKE3_CHUNK_LEN) {
+                zemu_log_stack("loop remainder");
+                blake3_hasher_update(&ctx, tx_get_buffer() + CRO_HEADER_SIZE + (total - remain), remain);
+                remain = 0;
+            } else {
+                zemu_log_stack("loop block");
+                blake3_hasher_update(&ctx, tx_get_buffer() + CRO_HEADER_SIZE + (total - remain), BLAKE3_CHUNK_LEN);
+                remain -= BLAKE3_CHUNK_LEN;
+            }
+        }
+
+        zb_check_canary();
+        blake3_hasher_finalize_seek(&ctx, G_io_apdu_buffer);
+        zb_check_canary();
     }
 }
 
