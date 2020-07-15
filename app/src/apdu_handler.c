@@ -89,11 +89,8 @@ __Z_INLINE void handleSignSecp256K1(volatile uint32_t *flags, volatile uint32_t 
     }
 
     zb_check_canary();
-    zemu_log_stack("handleSignSecp256K1");
     calculateDigest();
-
     zb_check_canary();
-    zemu_log_stack("Try parsing now");
 
     tx_parse_reset();
     const char *error_msg = tx_parse();

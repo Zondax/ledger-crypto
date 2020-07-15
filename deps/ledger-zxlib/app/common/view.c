@@ -52,16 +52,16 @@ void h_error_accept(unsigned int _) {
 
 void h_sign_accept(unsigned int _) {
     UNUSED(_);
-    app_sign();
     view_idle_show(0);
     UX_WAIT();
+    app_sign();
 }
 
 void h_sign_reject(unsigned int _) {
     UNUSED(_);
-    app_reject();
     view_idle_show(0);
     UX_WAIT();
+    app_reject();
 }
 
 ///////////////////////////////////
