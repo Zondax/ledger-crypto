@@ -96,19 +96,19 @@ void extractHDPath(uint32_t rx, uint32_t offset) {
         THROW(APDU_CODE_WRONG_LENGTH);
     }
 
-    MEMCPY_NV(N_hdpath.value, G_io_apdu_buffer + offset, sizeof(uint32_t) * HDPATH_LEN_DEFAULT);
+    MEMCPY(hdPath, G_io_apdu_buffer + offset, sizeof(uint32_t) * HDPATH_LEN_DEFAULT);
 
     const bool mainnet =
-            N_hdpath.value[0] == HDPATH_0_DEFAULT &&
-            N_hdpath.value[1] == HDPATH_1_DEFAULT &&
-            (N_hdpath.value[2] == HDPATH_2_ADDRESS_TRANSFER || N_hdpath.value[2] == HDPATH_2_ADDRESS_STAKING) &&
-            N_hdpath.value[3] == HDPATH_3_CHANGE;
+            hdPath[0] == HDPATH_0_DEFAULT &&
+            hdPath[1] == HDPATH_1_DEFAULT &&
+            (hdPath[2] == HDPATH_2_ADDRESS_TRANSFER || hdPath[2] == HDPATH_2_ADDRESS_STAKING) &&
+            hdPath[3] == HDPATH_3_CHANGE;
 
     const bool testnet =
-            N_hdpath.value[0] == HDPATH_0_TESTNET &&
-            N_hdpath.value[1] == HDPATH_1_TESTNET &&
-            (N_hdpath.value[2] == HDPATH_2_ADDRESS_TRANSFER || N_hdpath.value[2] == HDPATH_2_ADDRESS_STAKING) &&
-            N_hdpath.value[3] == HDPATH_3_CHANGE;
+            hdPath[0] == HDPATH_0_TESTNET &&
+            hdPath[1] == HDPATH_1_TESTNET &&
+            (hdPath[2] == HDPATH_2_ADDRESS_TRANSFER || hdPath[2] == HDPATH_2_ADDRESS_STAKING) &&
+            hdPath[3] == HDPATH_3_CHANGE;
 
     if (!mainnet && !testnet) {
         THROW(APDU_CODE_DATA_INVALID);

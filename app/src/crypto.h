@@ -28,20 +28,17 @@ extern "C" {
 #include "blake3_impl.h"
 #include "zbuffer.h"
 
+extern uint32_t hdPath[HDPATH_LEN_DEFAULT];
+
 extern address_kind_e addressKind;
 
 typedef struct {
     uint32_t value[HDPATH_LEN_DEFAULT];
 } hdpath_t;
 
-#if defined(TARGET_NANOS) || defined(TARGET_NANOX)
-extern hdpath_t NV_CONST N_hdpath_impl __attribute__ ((aligned(64)));
-#define N_hdpath (*(NV_VOLATILE hdpath_t *)PIC(&N_hdpath_impl))
-#endif
-
 bool isTestnet();
 
-void crypto_extractPublicKey(const hdpath_t *path, uint8_t *pubKey, uint16_t pubKeyLen);
+void crypto_extractPublicKey(const uint32_t path[HDPATH_LEN_DEFAULT], uint8_t *pubKey, uint16_t pubKeyLen);
 
 uint16_t crypto_fillAddress_secp256k1_transfer();
 uint16_t crypto_fillAddress_secp256k1_staking();

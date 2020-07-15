@@ -20,17 +20,15 @@
 #include "rslib.h"
 #include "bech32.h"
 
+uint32_t hdPath[HDPATH_LEN_DEFAULT];
+
 bool isTestnet() {
-    return N_hdpath.value[0] == HDPATH_0_TESTNET &&
-           N_hdpath.value[1] == HDPATH_1_TESTNET;
+    return hdPath[0] == HDPATH_0_TESTNET &&
+           hdPath[1] == HDPATH_1_TESTNET;
 }
 
 #if defined(TARGET_NANOS) || defined(TARGET_NANOX)
 #include "cx.h"
-#endif
-
-#if defined(TARGET_NANOS) || defined(TARGET_NANOX)
-hdpath_t NV_CONST N_hdpath_impl __attribute__ ((aligned(64)));
 #endif
 
 typedef struct {
@@ -74,7 +72,7 @@ uint16_t crypto_fillAddress_secp256k1_transfer() {
 
 #define ANSWER ((answer_t *) ADDRESS_BUFFER)
 #define TMP ((address_temp_t *) (ADDRESS_BUFFER + sizeof(answer_t)))
-    crypto_extractPublicKey(&N_hdpath, ANSWER->publicKey, sizeof_field(answer_t, publicKey));
+    crypto_extractPublicKey(hdPath, ANSWER->publicKey, sizeof_field(answer_t, publicKey));
 
     zemu_log_stack("fill_address_transfer");
 
@@ -130,7 +128,7 @@ uint16_t crypto_fillAddress_secp256k1_staking() {
     answer_t *const answer = (answer_t *) ADDRESS_BUFFER;
     address_temp_t *const tmp = (address_temp_t *) (ADDRESS_BUFFER + sizeof(answer_t));
 
-    crypto_extractPublicKey(&N_hdpath, answer->publicKey, sizeof_field(answer_t, publicKey));
+    crypto_extractPublicKey(hdPath, answer->publicKey, sizeof_field(answer_t, publicKey));
 
     // https://github.com/crypto-com/chain/blob/65931c8fa67c30a90213d754c8903055a3d00013/chain-core/src/init/address.rs#L6-L11
     //! ### Generating Address
@@ -145,7 +143,7 @@ uint16_t crypto_fillAddress_secp256k1_staking() {
     return PK_LEN_SECP256K1_UNCOMPRESSED + 40;
 }
 
-void crypto_extractPublicKey(const hdpath_t *path, uint8_t *pubKey, uint16_t pubKeyLen) {
+void crypto_extractPublicKey(const uint32_t path[HDPATH_LEN_DEFAULT], uint8_t *pubKey, uint16_t pubKeyLen) {
     cx_ecfp_public_key_t cx_publicKey;
     cx_ecfp_private_key_t cx_privateKey;
     uint8_t privateKeyData[32];
@@ -158,7 +156,7 @@ void crypto_extractPublicKey(const hdpath_t *path, uint8_t *pubKey, uint16_t pub
     {
         TRY
         {
-            os_perso_derive_node_bip32(CX_CURVE_256K1, N_hdpath.value, HDPATH_LEN_DEFAULT, privateKeyData, NULL);
+            os_perso_derive_node_bip32(CX_CURVE_256K1, hdPath, HDPATH_LEN_DEFAULT, privateKeyData, NULL);
             cx_ecfp_init_private_key(CX_CURVE_256K1, privateKeyData, 32, &cx_privateKey);
             cx_ecfp_init_public_key(CX_CURVE_256K1, NULL, 0, &cx_publicKey);
             cx_ecfp_generate_pair(CX_CURVE_256K1, &cx_publicKey, &cx_privateKey, 1);
@@ -205,7 +203,7 @@ uint16_t crypto_sign(uint8_t *buffer, uint16_t signatureMaxlen, const uint8_t *m
         {
             // Generate keys
             os_perso_derive_node_bip32(CX_CURVE_256K1,
-                                       N_hdpath.value,
+                                       hdPath,
                                        HDPATH_LEN_DEFAULT,
                                        privateKeyData, NULL);
 
