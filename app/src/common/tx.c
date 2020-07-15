@@ -24,10 +24,10 @@
 
 #if defined(TARGET_NANOX)
 #define RAM_BUFFER_SIZE 8192
-#define FLASH_BUFFER_SIZE 16384
+#define FLASH_BUFFER_SIZE 32768
 #elif defined(TARGET_NANOS)
 #define RAM_BUFFER_SIZE 0
-#define FLASH_BUFFER_SIZE 8192
+#define FLASH_BUFFER_SIZE 20480
 #endif
 
 // Ram
