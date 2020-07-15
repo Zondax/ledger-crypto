@@ -55,8 +55,16 @@ void calculateDigest() {
         // -----------------------------------
         //  2 bytes [....]
         // precalculate blake3 hash
+
         zemu_log_stack("hash_blake3");
-        hash_blake3(G_io_apdu_buffer, tx_get_buffer() + CRO_HEADER_SIZE, tx_get_buffer_length() - CRO_HEADER_SIZE);
+        blake3_hasher ctx;
+        blake3_hasher_init(&ctx);
+        CHECK_APP_CANARY()
+        blake3_hasher_update(&ctx, tx_get_buffer() + CRO_HEADER_SIZE, tx_get_buffer_length() - CRO_HEADER_SIZE);
+        CHECK_APP_CANARY()
+        blake3_hasher_finalize_seek(&ctx, G_io_apdu_buffer);
+        CHECK_APP_CANARY()
+        zemu_log_stack("hash_blake3 Back");
         zb_check_canary();
         zemu_log_stack("hash_blake3 OK");
     }

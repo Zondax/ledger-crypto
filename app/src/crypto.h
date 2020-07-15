@@ -43,16 +43,6 @@ bool isTestnet();
 
 void crypto_extractPublicKey(const hdpath_t *path, uint8_t *pubKey, uint16_t pubKeyLen);
 
-__Z_INLINE void hash_blake3(uint8_t *message_digest, const uint8_t *message, uint16_t messageLen) {
-    blake3_hasher ctx;
-    blake3_hasher_init(&ctx);
-    CHECK_APP_CANARY()
-    blake3_hasher_update(&ctx, message, messageLen);
-    CHECK_APP_CANARY()
-    blake3_hasher_finalize_seek(&ctx, message_digest);
-    CHECK_APP_CANARY()
-}
-
 uint16_t crypto_fillAddress_secp256k1_transfer();
 uint16_t crypto_fillAddress_secp256k1_staking();
 

@@ -313,4 +313,68 @@ describe('Basic checks', function () {
         }
     });
 
+    test('sign twice', async function () {
+        const sim = new Zemu(APP_PATH);
+        try {
+            await sim.start(simOptions);
+            const app = new CryptoApp(sim.getTransport());
+
+            // Enable expert mode
+            await sim.clickRight();
+            await sim.clickBoth();
+
+            const path = "m/44'/394'/1'/0/1";
+            const addrResponse = await app.getAddressAndPubKey(path);
+            const pk = Uint8Array.from(addrResponse.publicKey)
+            console.log(addrResponse)
+
+            // Sign once
+            const blobStr1 = "010000410afb0ccf51aefd111bceafb6c298acd4decaf60000000000000000e803000000000000002a0100000000000000"
+            const blob1 = Buffer.from(blobStr1, "hex")
+
+            let blobToHash = blob1.slice(2, blob1.length)
+            let msgHash = Uint8Array.from(blake3.newRegular().update(blobToHash).finalize(32, "bytes"));
+
+            // Do not await.. we need to click asynchronously
+            let signatureRequest = app.sign(path, blob1);
+            // Wait until we are not in the main menu
+            await sim.waitUntilScreenIsNot(sim.getMainMenuSnapshot(), 20000);
+            await sim.clickBoth();
+            await sim.clickBoth();
+            let signatureResponse = await signatureRequest;
+
+            console.log(signatureResponse)
+            expect(signatureResponse.returnCode).toEqual(0x9000);
+            // Now verify the signature
+            let signature = secp256k1.signatureImport(Uint8Array.from(signatureResponse.signatureDER));
+            let signatureOk = secp256k1.ecdsaVerify(signature, msgHash, pk);
+            expect(signatureOk).toEqual(true);
+
+            // Sign a second time
+            const blobStr2 = "00020000000000000000040009cbc2ce0dd314d5a7c658c866a4faf2d8510c6912313859eee908322bd7daf5e803000000000000010000000000000000000004036b3e5b7744134ac0556ace88b098a057014afb82701b1b1ba49ea04b09fea29b000100000000000000"
+            const blob2 = Buffer.from(blobStr2, "hex")
+
+            blobToHash = blob2.slice(2, blob2.length)
+            msgHash = Uint8Array.from(blake3.newRegular().update(blobToHash).finalize(32, "bytes"));
+
+            // Do not await.. we need to click asynchronously
+            signatureRequest = app.sign(path, blob2);
+            // Wait until we are not in the main menu
+            await sim.waitUntilScreenIsNot(sim.getMainMenuSnapshot(), 20000);
+            await sim.clickBoth();
+            await sim.clickBoth();
+            signatureResponse = await signatureRequest;
+
+            console.log(signatureResponse)
+            expect(signatureResponse.returnCode).toEqual(0x9000);
+            // Now verify the signature
+            signature = secp256k1.signatureImport(Uint8Array.from(signatureResponse.signatureDER));
+            signatureOk = secp256k1.ecdsaVerify(signature, msgHash, pk);
+            expect(signatureOk).toEqual(true);
+
+        } finally {
+            await sim.close();
+        }
+    });
+
 });
