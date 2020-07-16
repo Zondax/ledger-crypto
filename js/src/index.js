@@ -49,17 +49,11 @@ function processGetAddrResponse(response) {
 }
 
 export default class CryptoApp {
-  constructor(transport, scrambleKey = APP_KEY) {
+  constructor(transport) {
     if (!transport) {
       throw new Error("Transport has not been defined");
     }
-
     this.transport = transport;
-    transport.decorateAppAPIMethods(
-      this,
-      ["getVersion", "appInfo", "deviceInfo", "getAddressAndPubKey", "sign"],
-      scrambleKey,
-    );
   }
 
   static prepareChunks(serializedPathBuffer, message) {
@@ -227,7 +221,7 @@ export default class CryptoApp {
         for (let i = 1; i < chunks.length; i += 1) {
           // eslint-disable-next-line no-await-in-loop
           result = await this.signSendChunk(1 + i, chunks.length, chunks[i]);
-          if (result.return_code !== ERROR_CODE.NoError) {
+          if (result.returnCode !== ERROR_CODE.NoError) {
             break;
           }
         }

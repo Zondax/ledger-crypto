@@ -12,7 +12,7 @@ extern "C" {
 #define BLAKE3_OUT_LEN 32
 #define BLAKE3_BLOCK_LEN 64
 #define BLAKE3_CHUNK_LEN 1024
-#define BLAKE3_MAX_DEPTH 54
+#define BLAKE3_MAX_DEPTH 24
 #define BLAKE3_MAX_SIMD_DEGREE 16
 
 // This struct is a private implementation detail. It has to be here because

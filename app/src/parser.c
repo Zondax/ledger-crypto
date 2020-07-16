@@ -236,6 +236,7 @@ __Z_INLINE parser_error_t parser_getItem_unbound_stake(const cro_unbond_tx_t *v,
             snprintf(outKey, outKeyLen, "Value");
             return parser_print_coin(&v->value, outVal, outValLen, pageIdx, pageCount);
         case 4:
+            *pageCount = 1;
             snprintf(outKey, outKeyLen, "ChainID");
             snprintf(outVal, outValLen, "%02x", v->attributes.chain_hex_id);
             return parser_ok;
@@ -265,6 +266,7 @@ __Z_INLINE parser_error_t parser_getItem_unjail(const cro_unjail_tx_t *v,
             snprintf(outKey, outKeyLen, "Address");
             return parser_print_staked_state_address(&v->address, outVal, outValLen, pageIdx, pageCount);
         case 3:
+            *pageCount = 1;
             snprintf(outKey, outKeyLen, "ChainID");
             snprintf(outVal, outValLen, "%02x", v->attributes.chain_hex_id);
             return parser_ok;
@@ -295,6 +297,7 @@ __Z_INLINE parser_error_t parser_getItem_node_join_request(const cro_node_join_r
             snprintf(outKey, outKeyLen, "Address");
             return parser_print_staked_state_address(&v->address, outVal, outValLen, pageIdx, pageCount);
         case 3:
+            *pageCount = 1;
             snprintf(outKey, outKeyLen, "ChainID");
             snprintf(outVal, outValLen, "%02x", v->attributes.chain_hex_id);
             return parser_ok;
@@ -374,6 +377,7 @@ __Z_INLINE parser_error_t parser_getItem_withdraw_unbounded(const cro_withdraw_u
             case 2: {
                 snprintf(outKey, outKeyLen, "Addr %02d Valid From", addressItemIdx + 1);
                 if (!p.valid_from.has_value) {
+                    *pageCount = 1;
                     snprintf(outVal, outValLen, "Unrestricted");
                     return parser_ok;
                 } else {
@@ -387,6 +391,7 @@ __Z_INLINE parser_error_t parser_getItem_withdraw_unbounded(const cro_withdraw_u
     displayIdx -= addressItemCount;
 
     if (displayIdx == 0) {
+        *pageCount = 1;
         snprintf(outKey, outKeyLen, "ChainID");
         snprintf(outVal, outValLen, "%02x", v->attributes.chain_id);
         return parser_ok;
@@ -413,6 +418,7 @@ __Z_INLINE parser_error_t parser_getItem_withdraw_unbounded(const cro_withdraw_u
                 snprintf(outKey, outKeyLen, "Allow %02d", addressItemIdx + 1);
                 switch(p.access.value) {
                     case 0:
+                        *pageCount = 1;
                         snprintf(outVal, outValLen, "All Data");
                         return parser_ok;
                     default:
@@ -451,6 +457,7 @@ parser_error_t parser_getItem(const parser_context_t *ctx,
     if (displayIdx < 0 || displayIdx >= numItems) {
         return parser_no_data;
     }
+    *pageCount = 1;
 
     switch (ctx->tx_obj->txAuxEnumType) {
         case CRO_TX_AUX_ENUM_ENCLAVE_TX: {
