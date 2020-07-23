@@ -33,6 +33,12 @@ The general structure of commands and responses is as follows:
 | 0x6F00      | Unknown                 |
 | 0x9000      | Success                 |
 
+These values are based on APDU ISO 7816-4
+
+For a complete list, please refer to pages 59-62 of this document
+https://www.etsi.org/deliver/etsi_ts/102200_102299/102221/04.00.00_60/ts_102221v040000p.pdf
+
+
 ## New API
 
 ### GET_VERSION
