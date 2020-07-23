@@ -51,7 +51,7 @@ parser_error_t _read_cro_access_policy(parser_context_t *c, cro_access_policy_t 
     *value = 0u;                                                                            \
     for(uint8_t i=0u; i < (BITS##u>>3u); i++, ctx->offset++) {                              \
         if (ctx->offset >= ctx->bufferLen) return parser_unexpected_buffer_end;             \
-        *value += *(ctx->buffer + ctx->offset) << (8u*i);                                   \
+        *value += (uint ## BITS ##_t) *(ctx->buffer + ctx->offset) << (8u*i);                                   \
     }                                                                                       \
     return parser_ok;                                                                       \
 }

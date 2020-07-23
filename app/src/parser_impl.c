@@ -424,8 +424,7 @@ parser_error_t _read(parser_context_t *c, parser_tx_t *v) {
 }
 
 parser_error_t _validateTx(parser_context_t *c, const parser_tx_t *v) {
-    // TODO: Complete this
-
+    // No specific tx parameter validation specified
     return parser_ok;
 }
 

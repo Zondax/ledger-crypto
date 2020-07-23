@@ -94,7 +94,7 @@
   },
   {
     "description": "withdraw_unbonded",
-    "comment" : "nonce 0, coins 1000",
+    "comment": "nonce 0, coins 1000",
     "valid": true,
     "tx": "00020000000000000000040009cbc2ce0dd314d5a7c658c866a4faf2d8510c6912313859eee908322bd7daf5e803000000000000010000000000000000000004036b3e5b7744134ac0556ace88b098a057014afb82701b1b1ba49ea04b09fea29b000100000000000000",
     "tx_id": "e83d1e15bc3d4d80e7c61d00623af277cc792f503794e096fe8e4434371318b3",
@@ -110,6 +110,51 @@
       "6 | Allow 01 [2/2] : b82701b1b1ba49ea04b09fea29b",
       "7 | Allow 01 : All Data",
       "8 | AppVersion : 1"
+    ]
+  },
+  {
+    "description": "unbonded_stake_formatting_issue",
+    "comment": "nonce 0, coins 1000",
+    "valid": true,
+    "tx": "010000a5705430c56646e16932d9a75724e409f05efdf3d06d829d01000000d06d829d01000000002a0100000000000000",
+    "tx_id": "",
+    "expected_output": [
+      "0 | Type : Unbound Stake",
+      "1 | From [1/2] : a5705430c56646e16932d9a75724e409f05efdf",
+      "1 | From [2/2] : 3",
+      "2 | Nonce : 6937538000",
+      "3 | Value : 6937538000",
+      "4 | ChainID : 2a",
+      "5 | AppVersion : 1"
+    ]
+  },
+  {
+    "description": "unbonded_stake_formatting_issue2",
+    "comment": "nonce 0, coins 1000",
+    "valid": true,
+    "tx": "010000c78f8054ccdc5c7de46418fbc21f6ad09d76f4af00000000010000000000000001000000002a0100000000000000",
+    "tx_id": "",
+    "expected_output": [
+      "0 | Type : Unbound Stake",
+      "1 | From [1/2] : c78f8054ccdc5c7de46418fbc21f6ad09d76f4a",
+      "1 | From [2/2] : f",
+      "2 | Nonce : 4294967296",
+      "3 | Value : 4294967296",
+      "4 | ChainID : 2a",
+      "5 | AppVersion : 1"
+    ]
+  },
+  {
+    "description": "unjail_formatting_issue",
+    "valid": true,
+    "tx": "0101d06d829d0100000000f516097810e46313772b6f65fbecb2cafd7ef0f2002a0100000000000000",
+    "expected_output": [
+      "0 | Type : Unjail",
+      "1 | Nonce : 6937538000",
+      "2 | Address [1/2] : f516097810e46313772b6f65fbecb2cafd7ef0f",
+      "2 | Address [2/2] : 2",
+      "3 | ChainID : 2a",
+      "4 | AppVersion : 1"
     ]
   }
 ]

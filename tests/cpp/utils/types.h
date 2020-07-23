@@ -16,8 +16,6 @@
 #pragma once
 
 typedef struct {
-// TODO: Add respective fields
-
     std::string encoded_tx;
     bool valid;
     bool testnet;
