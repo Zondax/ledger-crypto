@@ -19,8 +19,8 @@
 #include <parser.h>
 #include <vector>
 
-#define EXPECT_EQ_STR(_STR1, _STR2, _ERROR_MESSAGE) { if (_STR1 != nullptr & _STR2 != nullptr) \
-EXPECT_TRUE(!strcmp(_STR1, _STR2)) << _ERROR_MESSAGE << ", expected: " << _STR2 << ", received: " << _STR1; \
+#define EXPECT_EQ_STR(_STR1, _STR2, _ERROR_MESSAGE) { if ((_STR1) != nullptr & (_STR2) != nullptr) \
+EXPECT_TRUE(!strcmp(_STR1, _STR2)) << (_ERROR_MESSAGE) << ", expected: " << (_STR2) << ", received: " << (_STR1); \
 else FAIL() << "One of the strings is null"; }
 
 std::vector<std::string> dumpUI(parser_context_t *ctx, uint16_t maxKeyLen, uint16_t maxValueLen);

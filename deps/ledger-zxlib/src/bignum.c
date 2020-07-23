@@ -96,7 +96,7 @@ bool_t bignumBigEndian_bcdprint(char *outBuffer, uint16_t outBufferLen,
         return bool_false;
     }
 
-    for (uint8_t i = 0; i < bcdInLen; i++) {
+    for (uint16_t i = 0; i < bcdInLen; i++) {
         uint8_t v = bcdIn[bcdInLen - i - 1];
         if (started || v != 0) {
             if (started || (v >> 4u) != 0) {
