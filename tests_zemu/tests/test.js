@@ -123,10 +123,7 @@ describe('Basic checks', function () {
             // Wait until we are not in the main menu
             await sim.waitUntilScreenIsNot(sim.getMainMenuSnapshot(), 20000);
 
-            await sim.clickRight();
-            await sim.clickRight();
-            await sim.clickRight();
-            await sim.clickBoth();
+            await sim.compareSnapshotsAndAccept(".", "show_address_transfer", 3);
 
             const response = await addrRequest;
             console.log(response)
@@ -155,10 +152,7 @@ describe('Basic checks', function () {
             // Wait until we are not in the main menu
             await sim.waitUntilScreenIsNot(sim.getMainMenuSnapshot(), 20000);
 
-            await sim.clickRight();
-            await sim.clickRight();
-            await sim.clickBoth();
-            await sim.clickBoth();
+            await sim.compareSnapshotsAndAccept(".", "show_address_transfer_expert", 4);
 
             const response = await addrRequest;
             console.log(response)
@@ -184,12 +178,7 @@ describe('Basic checks', function () {
             // Wait until we are not in the main menu
             await sim.waitUntilScreenIsNot(sim.getMainMenuSnapshot(), 20000);
 
-            await sim.clickRight();
-            await sim.clickRight();
-            await sim.clickRight();
-            await sim.clickRight();
-            await sim.clickRight();
-            await sim.clickBoth();
+            await sim.compareSnapshotsAndAccept(".", "show_address_transfer_testnet", 3);
 
             const response = await addrRequest;
             console.log(response)
@@ -215,9 +204,7 @@ describe('Basic checks', function () {
             // Wait until we are not in the main menu
             await sim.waitUntilScreenIsNot(sim.getMainMenuSnapshot(), 20000);
 
-            await sim.clickRight();
-            await sim.clickRight();
-            await sim.clickBoth();
+            await sim.compareSnapshotsAndAccept(".", "show_address_staking", 3);
 
             const response = await addrRequest;
             console.log(response)
@@ -243,9 +230,7 @@ describe('Basic checks', function () {
             // Wait until we are not in the main menu
             await sim.waitUntilScreenIsNot(sim.getMainMenuSnapshot(), 20000);
 
-            await sim.clickRight();
-            await sim.clickRight();
-            await sim.clickBoth();
+            await sim.compareSnapshotsAndAccept(".", "show_address_staking_testnet", 3);
 
             const response = await addrRequest;
             console.log(response)
@@ -288,18 +273,7 @@ describe('Basic checks', function () {
             // Wait until we are not in the main menu
             await sim.waitUntilScreenIsNot(sim.getMainMenuSnapshot(), 20000);
 
-            await sim.clickRight();
-            await sim.clickRight();
-            await sim.clickRight();
-            await sim.clickRight();
-            await sim.clickRight();
-            await sim.clickRight();
-            await sim.clickRight();
-            await sim.clickRight();
-            await sim.clickRight();
-            await sim.clickRight();
-            await sim.clickRight();
-            await sim.clickBoth();
+            await sim.compareSnapshotsAndAccept(".", "sign", 12);
 
             let signatureResponse = await signatureRequest;
             console.log(signatureResponse)
@@ -341,19 +315,7 @@ describe('Basic checks', function () {
             // Wait until we are not in the main menu
             await sim.waitUntilScreenIsNot(sim.getMainMenuSnapshot(), 20000);
 
-            await sim.clickRight();
-            await sim.clickRight();
-            await sim.clickRight();
-            await sim.clickRight();
-            await sim.clickRight();
-            await sim.clickRight();
-            await sim.clickRight();
-            await sim.clickRight();
-            await sim.clickRight();
-            await sim.clickRight();
-            await sim.clickRight();
-            await sim.clickRight();
-            await sim.clickBoth();
+            await sim.compareSnapshotsAndAccept(".", "sign_massive", 13);
 
             let signatureResponse = await signatureRequest;
             console.log(signatureResponse)
