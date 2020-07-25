@@ -173,9 +173,9 @@ void crypto_extractPublicKey(const uint32_t path[HDPATH_LEN_DEFAULT], uint8_t *p
 }
 
 typedef struct {
+    uint8_t v;
     uint8_t r[32];
     uint8_t s[32];
-    uint8_t v;
 
     // DER signature max size should be 73
     // https://bitcoin.stackexchange.com/questions/77191/what-is-the-maximum-size-of-a-der-encoded-ecdsa-signature#77192
