@@ -21,6 +21,7 @@
 #include "parser.h"
 #include "coin.h"
 #include <timeutils.h>
+#include <base64.h>
 
 #if defined(TARGET_NANOX)
 // For some reason NanoX requires this function
@@ -188,8 +189,9 @@ parser_print_council_node_tendermint_validator_pubkey(const cro_tendermint_valid
     char buffer[70];
     MEMZERO(buffer, sizeof(buffer));
 
-    if (array_to_hexstr(buffer, sizeof(buffer), v->edd25519_pubkey._ptr, CRO_ED25519_PUBKEY_SIZE) !=
-        CRO_ED25519_PUBKEY_SIZE * 2)
+    const uint16_t numBytes = base64_encode(buffer, sizeof(buffer), v->edd25519_pubkey._ptr, CRO_ED25519_PUBKEY_SIZE);
+
+    if (numBytes != 44)
         return parser_invalid_address;
 
     pageIdx--;
@@ -416,7 +418,7 @@ __Z_INLINE parser_error_t parser_getItem_withdraw_unbounded(const cro_withdraw_u
             }
             case 1: {
                 snprintf(outKey, outKeyLen, "Allow %02d", addressItemIdx + 1);
-                switch(p.access.value) {
+                switch (p.access.value) {
                     case 0:
                         *pageCount = 1;
                         snprintf(outVal, outValLen, "All Data");
