@@ -38,6 +38,7 @@ file(GLOB_RECURSE BLAKE3_SRC
 
 file(GLOB_RECURSE LIB_SRC
         ${CMAKE_CURRENT_SOURCE_DIR}/deps/ledger-zxlib/src/hexutils.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/deps/ledger-zxlib/src/base64.c
         ${CMAKE_CURRENT_SOURCE_DIR}/deps/ledger-zxlib/src/bignum.c
         ${CMAKE_CURRENT_SOURCE_DIR}/deps/ledger-zxlib/src/timeutils.c
         ${CMAKE_CURRENT_SOURCE_DIR}/deps/ledger-zxlib/src/zxmacros.c
