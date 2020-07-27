@@ -16,6 +16,10 @@
 
 #pragma once
 
+#include <zxerror.h>
+#include "zxmacros.h"
+#include <bech32.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -36,13 +40,71 @@ typedef struct {
     uint32_t value[HDPATH_LEN_DEFAULT];
 } hdpath_t;
 
-bool isTestnet();
+typedef struct {
+    uint8_t publicKey[PK_LEN_SECP256K1_UNCOMPRESSED];
+    char address[80];
+    char SAFETY_GAP[15];
+} __attribute__((packed)) crypto_addr_answer_t;
 
+typedef struct {
+    union {
+        uint8_t hash_pk[32];
+        struct {
+            uint8_t address_padding[12];
+            uint8_t address_pk[20];
+        };
+    };
+    uint8_t merkle_tmp[1];
+} __attribute__((packed)) crypto_addr_answer_tmp_t;
+
+extern uint32_t hdPath[HDPATH_LEN_DEFAULT];
+
+__Z_INLINE bool isTestnet() {
+    return hdPath[0] == HDPATH_0_TESTNET &&
+           hdPath[1] == HDPATH_1_TESTNET;
+}
+
+__Z_INLINE uint8_t crypto_formatTransferAddress(const uint8_t *pk_X, char *out_address, uint8_t out_addrMaxLen) {
+    crypto_addr_answer_tmp_t crypto_addr_answer_tmp;
+    MEMZERO(&crypto_addr_answer_tmp, sizeof(crypto_addr_answer_tmp_t));
+
+    MEMCPY(crypto_addr_answer_tmp.hash_pk, pk_X, 32);
+
+    // Now hash public key with blake3
+    blake3_hasher ctx;
+    blake3_hasher_init(&ctx);
+    // Merkle prefix
+    blake3_hasher_update(&ctx, crypto_addr_answer_tmp.merkle_tmp, 1);
+    zb_check_canary();
+    // only X from secp256k1 1[X][Y]
+    blake3_hasher_update(&ctx, pk_X, 32);
+    zb_check_canary();
+    blake3_hasher_finalize_seek(&ctx, crypto_addr_answer_tmp.hash_pk);
+    zb_check_canary();
+
+    const char *hrp = COIN_MAINNET_BECH32_HRP;
+    if (isTestnet()) {
+        hrp = COIN_TESTNET_BECH32_HRP;
+    }
+
+    // Encode last 20 bytes from the blake3 hash
+    const zxerr_t err = bech32EncodeFromBytes(
+            out_address, out_addrMaxLen,
+            hrp,
+            crypto_addr_answer_tmp.hash_pk, sizeof_field(crypto_addr_answer_tmp_t, hash_pk), 1
+    );
+
+    if (err != zxerr_ok) {
+        return 0;
+    }
+
+    zb_check_canary();
+    return strlen(out_address);
+}
+
+uint8_t crypto_fillAddress_secp256k1_transfer();
+uint8_t crypto_fillAddress_secp256k1_staking();
 void crypto_extractPublicKey(const uint32_t path[HDPATH_LEN_DEFAULT], uint8_t *pubKey, uint16_t pubKeyLen);
-
-uint16_t crypto_fillAddress_secp256k1_transfer();
-uint16_t crypto_fillAddress_secp256k1_staking();
-
 uint16_t crypto_sign(uint8_t *signature, uint16_t signatureMaxlen, const uint8_t *message, uint16_t messageLen);
 
 #ifdef __cplusplus

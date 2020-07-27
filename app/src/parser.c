@@ -96,13 +96,25 @@ __Z_INLINE parser_error_t parser_print_coin(const cro_coin_t *v,
 __Z_INLINE parser_error_t parser_print_extended_address(const cro_extended_address_t *v,
                                                         char *outVal, uint16_t outValLen,
                                                         uint8_t pageIdx, uint8_t *pageCount) {
-    char buffer[CRO_EXTENDED_ADDRESS_BYTES * 2 + 1];
+    char buffer[100];
     MEMZERO(buffer, sizeof(buffer));
 
-    if (array_to_hexstr(buffer, sizeof(buffer), v->_ptr, CRO_EXTENDED_ADDRESS_BYTES) != CRO_EXTENDED_ADDRESS_BYTES * 2)
-        return parser_invalid_address;
+    const char *hrp = COIN_MAINNET_BECH32_HRP;
+    if (isTestnet()) {
+        hrp = COIN_TESTNET_BECH32_HRP;
+    }
 
-    pageStringExt(outVal, outValLen, buffer, CRO_EXTENDED_ADDRESS_BYTES * 2, pageIdx, pageCount);
+    const zxerr_t err = bech32EncodeFromBytes(
+            buffer, sizeof(buffer),
+            hrp,
+            v->_ptr, CRO_EXTENDED_ADDRESS_BYTES, 1
+    );
+
+    if (err != zxerr_ok) {
+        return parser_invalid_address;
+    }
+
+    pageStringExt(outVal, outValLen, buffer, strlen(buffer), pageIdx, pageCount);
     return parser_ok;
 }
 
