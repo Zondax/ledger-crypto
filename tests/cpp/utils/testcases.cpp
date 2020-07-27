@@ -27,6 +27,7 @@ testcaseData_t ReadTestCaseData(const std::shared_ptr<Json::Value> &jsonSource, 
 
     answer.valid = v["valid"].asBool();
     answer.encoded_tx = v["tx"].asString();
+    answer.testnet = v["testnet"].asBool();
 
     assert(answer.encoded_tx.size() % 2 == 0);
     answer.blob = std::vector<uint8_t>(answer.encoded_tx.size() / 2);

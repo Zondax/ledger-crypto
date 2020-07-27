@@ -28,18 +28,10 @@ const simOptions = {
     logging: true,
     start_delay: 3000,
     custom: `-s "${APP_SEED}"`
-//    , X11: true
+    , X11: true
 };
 
 jest.setTimeout(60000)
-
-function compareSnapshots(snapshotPrefixTmp, snapshotPrefixGolden, snapshotCount) {
-    for (let i = 0; i < snapshotCount; i++) {
-        const img1 = Zemu.LoadPng2RGB(`${snapshotPrefixTmp}${i}.png`);
-        const img2 = Zemu.LoadPng2RGB(`${snapshotPrefixGolden}${i}.png`);
-        expect(img1).toEqual(img2);
-    }
-}
 
 describe('Basic checks', function () {
     test('can start and stop container', async function () {
@@ -123,10 +115,7 @@ describe('Basic checks', function () {
             // Wait until we are not in the main menu
             await sim.waitUntilScreenIsNot(sim.getMainMenuSnapshot(), 20000);
 
-            await sim.clickRight();
-            await sim.clickRight();
-            await sim.clickRight();
-            await sim.clickBoth();
+            await sim.compareSnapshotsAndAccept(".", "show_address_transfer", 3);
 
             const response = await addrRequest;
             console.log(response)
@@ -155,10 +144,7 @@ describe('Basic checks', function () {
             // Wait until we are not in the main menu
             await sim.waitUntilScreenIsNot(sim.getMainMenuSnapshot(), 20000);
 
-            await sim.clickRight();
-            await sim.clickRight();
-            await sim.clickBoth();
-            await sim.clickBoth();
+            await sim.compareSnapshotsAndAccept(".", "show_address_transfer_expert", 4);
 
             const response = await addrRequest;
             console.log(response)
@@ -184,12 +170,7 @@ describe('Basic checks', function () {
             // Wait until we are not in the main menu
             await sim.waitUntilScreenIsNot(sim.getMainMenuSnapshot(), 20000);
 
-            await sim.clickRight();
-            await sim.clickRight();
-            await sim.clickRight();
-            await sim.clickRight();
-            await sim.clickRight();
-            await sim.clickBoth();
+            await sim.compareSnapshotsAndAccept(".", "show_address_transfer_testnet", 3);
 
             const response = await addrRequest;
             console.log(response)
@@ -215,9 +196,7 @@ describe('Basic checks', function () {
             // Wait until we are not in the main menu
             await sim.waitUntilScreenIsNot(sim.getMainMenuSnapshot(), 20000);
 
-            await sim.clickRight();
-            await sim.clickRight();
-            await sim.clickBoth();
+            await sim.compareSnapshotsAndAccept(".", "show_address_staking", 3);
 
             const response = await addrRequest;
             console.log(response)
@@ -243,9 +222,7 @@ describe('Basic checks', function () {
             // Wait until we are not in the main menu
             await sim.waitUntilScreenIsNot(sim.getMainMenuSnapshot(), 20000);
 
-            await sim.clickRight();
-            await sim.clickRight();
-            await sim.clickBoth();
+            await sim.compareSnapshotsAndAccept(".", "show_address_staking_testnet", 3);
 
             const response = await addrRequest;
             console.log(response)
@@ -288,18 +265,7 @@ describe('Basic checks', function () {
             // Wait until we are not in the main menu
             await sim.waitUntilScreenIsNot(sim.getMainMenuSnapshot(), 20000);
 
-            await sim.clickRight();
-            await sim.clickRight();
-            await sim.clickRight();
-            await sim.clickRight();
-            await sim.clickRight();
-            await sim.clickRight();
-            await sim.clickRight();
-            await sim.clickRight();
-            await sim.clickRight();
-            await sim.clickRight();
-            await sim.clickRight();
-            await sim.clickBoth();
+            await sim.compareSnapshotsAndAccept(".", "sign", 12);
 
             let signatureResponse = await signatureRequest;
             console.log(signatureResponse)
@@ -341,19 +307,7 @@ describe('Basic checks', function () {
             // Wait until we are not in the main menu
             await sim.waitUntilScreenIsNot(sim.getMainMenuSnapshot(), 20000);
 
-            await sim.clickRight();
-            await sim.clickRight();
-            await sim.clickRight();
-            await sim.clickRight();
-            await sim.clickRight();
-            await sim.clickRight();
-            await sim.clickRight();
-            await sim.clickRight();
-            await sim.clickRight();
-            await sim.clickRight();
-            await sim.clickRight();
-            await sim.clickRight();
-            await sim.clickBoth();
+            await sim.compareSnapshotsAndAccept(".", "sign_massive", 13);
 
             let signatureResponse = await signatureRequest;
             console.log(signatureResponse)

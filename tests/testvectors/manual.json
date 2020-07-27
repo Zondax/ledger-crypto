@@ -67,8 +67,8 @@
       "5 | Name : example",
       "6 | Sec Contact : security@example.com",
       "7 | Val Pubkey [1/3] : Ed25519",
-      "7 | Val Pubkey [2/3] : d75a980182b10ab7d54bfed3c964073a0ee172f",
-      "7 | Val Pubkey [3/3] : 3daa62325af021a68f707511a",
+      "7 | Val Pubkey [2/3] : 11qYAYKxCrfVS/7TyWQHOg7hcvPapiMlrwIaaPc",
+      "7 | Val Pubkey [3/3] : HURo=",
       "8 | Conf Init : bytes: 16543"
     ]
   },
@@ -87,8 +87,8 @@
       "5 | Name : example",
       "6 | Sec Contact : security@example.com",
       "7 | Val Pubkey [1/3] : Ed25519",
-      "7 | Val Pubkey [2/3] : d75a980182b10ab7d54bfed3c964073a0ee172f",
-      "7 | Val Pubkey [3/3] : 3daa62325af021a68f707511a",
+      "7 | Val Pubkey [2/3] : 11qYAYKxCrfVS/7TyWQHOg7hcvPapiMlrwIaaPc",
+      "7 | Val Pubkey [3/3] : HURo=",
       "8 | Conf Init : bytes: 16543"
     ]
   },
@@ -101,8 +101,8 @@
     "expected_output": [
       "0 | Type : Withdraw unbounded",
       "1 | Nonce : 0",
-      "2 | Addr 01 [1/2] : 09cbc2ce0dd314d5a7c658c866a4faf2d8510c6",
-      "2 | Addr 01 [2/2] : 912313859eee908322bd7daf5",
+      "2 | Addr 01 [1/2] : cro1p89u9nsd6v2dtf7xtryxdf867tv9zrrfzgc",
+      "2 | Addr 01 [2/2] : nsk0wayyry27hmt6s9kt5hc",
       "3 | Addr 01 Value : 1000",
       "4 | Addr 01 Valid From : 01Jan1970 00:00:00UTC",
       "5 | ChainID : 00",
@@ -155,6 +155,32 @@
       "2 | Address [2/2] : 2",
       "3 | ChainID : 2a",
       "4 | AppVersion : 1"
+    ]
+  },
+  {
+    "description": "github_issue_13",
+    "valid": true,
+    "testnet": false,
+    "tx": "0002d06d829d0100000008000f8d0e41d5b205ef5e6b3d188156f9e902816c6cda43bea75e98f3527e9652c4d06d829d01000000017113000000000000005a97004b83330db38bbf6418c3cec0b934f9320092e3cfa20d86ed7bb2fccb65d06d829d0100000001b909000000000000002a080329a99b01864dbdcdd8852ee69dc1d081fd4512e125e1c725eb23f7a6ca9b68bb000328966e1cd2fc772c836b2f9b396208ddb677e95326f773dc81d44d0ab937be79000100000000000000",
+    "expected_output": [
+      "0 | Type : Withdraw unbounded",
+      "1 | Nonce : 6937538000",
+      "2 | Addr 01 [1/2] : cro1p7xsusw4kgz77hnt85vgz4heaypgzmrvmfp",
+      "2 | Addr 01 [2/2] : maf67nre4yl5k2tzqwq7ucn",
+      "3 | Addr 01 Value : 6937538000",
+      "4 | Addr 01 Valid From : 01Jan1970 01:22:57UTC",
+      "5 | Addr 02 [1/2] : cro1t2tsqjurxvxm8zalvsvv8nkqhy60jvsqjt3",
+      "5 | Addr 02 [2/2] : ulgsdsmkhhvhuedjsldul46",
+      "6 | Addr 02 Value : 6937538000",
+      "7 | Addr 02 Valid From : 01Jan1970 00:41:29UTC",
+      "8 | ChainID : 2a",
+      "9 | Allow 01 [1/2] : 0329a99b01864dbdcdd8852ee69dc1d081fd451",
+      "9 | Allow 01 [2/2] : 2e125e1c725eb23f7a6ca9b68bb",
+      "10 | Allow 01 : All Data",
+      "11 | Allow 02 [1/2] : 0328966e1cd2fc772c836b2f9b396208ddb677e",
+      "11 | Allow 02 [2/2] : 95326f773dc81d44d0ab937be79",
+      "12 | Allow 02 : All Data",
+      "13 | AppVersion : 1"
     ]
   }
 ]

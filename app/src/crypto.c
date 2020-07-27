@@ -16,37 +16,13 @@
 
 #include "crypto.h"
 #include "coin.h"
-#include "zxmacros.h"
 #include "rslib.h"
-#include "bech32.h"
 
 uint32_t hdPath[HDPATH_LEN_DEFAULT];
-
-bool isTestnet() {
-    return hdPath[0] == HDPATH_0_TESTNET &&
-           hdPath[1] == HDPATH_1_TESTNET;
-}
 
 #if defined(TARGET_NANOS) || defined(TARGET_NANOX)
 #include "cx.h"
 #endif
-
-typedef struct {
-    uint8_t publicKey[PK_LEN_SECP256K1_UNCOMPRESSED];
-    char address[80];
-    char SAFETY_GAP[15];
-} __attribute__((packed)) answer_t;
-
-typedef struct {
-    union {
-        uint8_t hash_pk[32];
-        struct {
-            uint8_t address_padding[12];
-            uint8_t address_pk[20];
-        };
-    };
-    uint8_t merkle_tmp[1];
-} __attribute__((packed)) address_temp_t;
 
 void keccak(uint8_t *out, size_t out_len, uint8_t *in, size_t in_len) {
     cx_sha3_t sha3;
@@ -57,78 +33,44 @@ void keccak(uint8_t *out, size_t out_len, uint8_t *in, size_t in_len) {
 #define ADDRESS_BUFFER G_io_apdu_buffer
 #define ADDRESS_BUFFER_LEN (IO_APDU_BUFFER_SIZE - 2)
 
-uint16_t crypto_fillAddress_secp256k1_transfer() {
+uint8_t crypto_fillAddress_secp256k1_transfer() {
     MEMZERO(ADDRESS_BUFFER, ADDRESS_BUFFER_LEN);
-
-    // We are very much stack limited, we let's use the output buffer
-    // to store temporary non-confidential data
-    // normally the output buffer is the G_io_apdu_buffer that is at least 250 bytes
-    // [   .... output buffer  |   260 bytes.... ]
-    // [answer_t 125][..15..][address_temp_t 32][  ]
-
-    if (ADDRESS_BUFFER_LEN < sizeof(answer_t) + sizeof(address_temp_t)) {
+    if (ADDRESS_BUFFER_LEN < sizeof(crypto_addr_answer_t) + sizeof(crypto_addr_answer_tmp_t)) {
         return 0;
     }
 
-#define ANSWER ((answer_t *) ADDRESS_BUFFER)
-#define TMP ((address_temp_t *) (ADDRESS_BUFFER + sizeof(answer_t)))
-    crypto_extractPublicKey(hdPath, ANSWER->publicKey, sizeof_field(answer_t, publicKey));
+    crypto_addr_answer_t *const answer = (crypto_addr_answer_t *) ADDRESS_BUFFER;
+    crypto_extractPublicKey(hdPath, answer->publicKey, sizeof_field(crypto_addr_answer_t, publicKey));
 
-    zemu_log_stack("fill_address_transfer");
+    const uint8_t *const pk_X = answer->publicKey + 1;
 
-    // Now hash public key with blake3
-    blake3_hasher ctx;
-    blake3_hasher_init(&ctx);
-    // Merkle prefix
-    blake3_hasher_update(&ctx, TMP->merkle_tmp, 1);
-    zb_check_canary();
-    // only X from secp256k1 1[X][Y]
-    blake3_hasher_update(&ctx, ANSWER->publicKey + 1, 32);
-    zb_check_canary();
-    blake3_hasher_finalize_seek(&ctx, TMP->hash_pk);
-    zb_check_canary();
-
-    const char *hrp = COIN_MAINNET_BECH32_HRP;
-    if (isTestnet()) {
-        hrp = COIN_TESTNET_BECH32_HRP;
-    }
-
-    // Encode last 20 bytes from the blake3 hash
-    const zxerr_t err = bech32EncodeFromBytes(
-            ANSWER->address, sizeof_field(answer_t, address),
-            hrp,
-            TMP->hash_pk, sizeof_field(address_temp_t, hash_pk),
-            1
-    );
-
-    if (err != zxerr_ok) {
+    const uint16_t address_len = crypto_formatTransferAddress(pk_X,
+                                                              answer->address,
+                                                              sizeof_field(crypto_addr_answer_t, address));
+    if (address_len == 0) {
         return 0;
     }
 
-    CHECK_APP_CANARY();
-
-    return PK_LEN_SECP256K1_UNCOMPRESSED + strlen(ANSWER->address);
-#undef ANSWER
-#undef TMP
+    return PK_LEN_SECP256K1_UNCOMPRESSED + address_len;
 }
 
-uint16_t crypto_fillAddress_secp256k1_staking() {
+uint8_t crypto_fillAddress_secp256k1_staking() {
     MEMZERO(ADDRESS_BUFFER, ADDRESS_BUFFER_LEN);
 
     // We are very much stack limited, we let's use the output buffer
     // to store temporary non-confidential data
     // normally the output buffer is the G_io_apdu_buffer that is at least 250 bytes
     // [   .... output buffer  |   260 bytes.... ]
-    // [answer_t 125][..15..][address_temp_t 32][  ]
+    // [crypto_addr_answer_t 125][..15..][address_temp_t 32][  ]
 
-    if (ADDRESS_BUFFER_LEN < sizeof(answer_t) + sizeof(address_temp_t)) {
+    if (ADDRESS_BUFFER_LEN < sizeof(crypto_addr_answer_t) + sizeof(crypto_addr_answer_tmp_t)) {
         return 0;
     }
 
-    answer_t *const answer = (answer_t *) ADDRESS_BUFFER;
-    address_temp_t *const tmp = (address_temp_t *) (ADDRESS_BUFFER + sizeof(answer_t));
+    crypto_addr_answer_t *const answer = (crypto_addr_answer_t *) ADDRESS_BUFFER;
+    crypto_addr_answer_tmp_t *const tmp = (crypto_addr_answer_tmp_t *) (ADDRESS_BUFFER + sizeof(crypto_addr_answer_t));
 
-    crypto_extractPublicKey(hdPath, answer->publicKey, sizeof_field(answer_t, publicKey));
+    crypto_extractPublicKey(hdPath, answer->publicKey, sizeof_field(crypto_addr_answer_t, publicKey));
 
     // https://github.com/crypto-com/chain/blob/65931c8fa67c30a90213d754c8903055a3d00013/chain-core/src/init/address.rs#L6-L11
     //! ### Generating Address
@@ -138,7 +80,7 @@ uint16_t crypto_fillAddress_secp256k1_staking() {
     //! - Take the last 20 bytes of this Keccak-256 hash. Or, in other words, drop the first 12 bytes.
     //!   These 20 bytes are the address.
     keccak(tmp->hash_pk, 32, answer->publicKey + 1, PK_LEN_SECP256K1_UNCOMPRESSED - 1);
-    array_to_hexstr(answer->address, sizeof_field(answer_t, address), tmp->address_pk, 20);
+    array_to_hexstr(answer->address, sizeof_field(crypto_addr_answer_t, address), tmp->address_pk, 20);
     CHECK_APP_CANARY();
     return PK_LEN_SECP256K1_UNCOMPRESSED + 40;
 }
@@ -173,9 +115,9 @@ void crypto_extractPublicKey(const uint32_t path[HDPATH_LEN_DEFAULT], uint8_t *p
 }
 
 typedef struct {
+    uint8_t v;
     uint8_t r[32];
     uint8_t s[32];
-    uint8_t v;
 
     // DER signature max size should be 73
     // https://bitcoin.stackexchange.com/questions/77191/what-is-the-maximum-size-of-a-der-encoded-ecdsa-signature#77192
