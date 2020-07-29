@@ -35,15 +35,38 @@ parser_error_t _read_cro_access_policy(parser_context_t *c, cro_access_policy_t 
     CTX_CHECK_AVAIL((CTX), (SIZE))   \
     (CTX)->offset += (SIZE);
 
+// Checks function input is valid
 #define CHECK_INPUT() \
     if (v == NULL) { return parser_no_data; } \
-    if (c == NULL || c->offset > c->bufferLen) { return parser_unexpected_buffer_end; }
+    CTX_CHECK_AVAIL(c, 1) // Checks that there is something available in the buffer
+
+#define CLEAN_AND_CHECK() MEMZERO(outValue, outValueLen);  \
+    if (v == NULL) { *pageCount = 0; return parser_no_data; }
 
 #define GEN_DEF_READARRAY(SIZE) \
     v->_ptr = c->buffer + c->offset; \
     CTX_CHECK_AND_ADVANCE(c, SIZE) \
     return parser_ok;
 
+#define GEN_DEF_TOSTRING_ARRAY(SIZE) \
+    CLEAN_AND_CHECK();\
+    if (v->_ptr == NULL) return parser_unexpected_buffer_end; \
+    const uint16_t outLenNormalized = ((outValueLen - 1u) >> 1u);\
+    const uint16_t pageOffset = pageIdx * outLenNormalized;\
+    *pageCount = SIZE / outLenNormalized;    \
+    if (SIZE % outLenNormalized != 0)    \
+    (*pageCount)++; \
+    uint16_t loopmax = outLenNormalized;    \
+    if (loopmax > SIZE - pageOffset) { \
+        loopmax = SIZE - pageOffset; \
+    };\
+    for (uint16_t i = 0; i < loopmax; i++) {\
+        const uint16_t offset = i << 1u;\
+        snprintf(outValue + offset,\
+        outValueLen - offset,\
+        "%02x", *(v->_ptr + pageOffset + i));\
+    }\
+    return parser_ok;
 #define GEN_DEC_READFIX_UNSIGNED(BITS) parser_error_t _readUInt ## BITS(parser_context_t *ctx, uint ## BITS ##_t *value)
 #define GEN_DEF_READFIX_UNSIGNED(BITS) parser_error_t _readUInt ## BITS(parser_context_t *ctx, uint ## BITS ##_t *value) \
 {                                                                                           \
@@ -51,10 +74,15 @@ parser_error_t _read_cro_access_policy(parser_context_t *c, cro_access_policy_t 
     *value = 0u;                                                                            \
     for(uint8_t i=0u; i < (BITS##u>>3u); i++, ctx->offset++) {                              \
         if (ctx->offset >= ctx->bufferLen) return parser_unexpected_buffer_end;             \
-        *value += (uint ## BITS ##_t) *(ctx->buffer + ctx->offset) << (8u*i);                                   \
+        *value += (uint ## BITS ##_t) *(ctx->buffer + ctx->offset) << (8u*i);               \
     }                                                                                       \
     return parser_ok;                                                                       \
 }
+
+GEN_DEC_READFIX_UNSIGNED(8);
+GEN_DEC_READFIX_UNSIGNED(16);
+GEN_DEC_READFIX_UNSIGNED(32);
+GEN_DEC_READFIX_UNSIGNED(64);
 
 #define GEN_DEF_READVECTOR(TYPE)                                    \
     cro_##TYPE##_t dummy;                                           \

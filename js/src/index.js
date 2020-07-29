@@ -17,7 +17,6 @@
 
 import { serializePathv1, signSendChunkv1 } from "./helperV1";
 import {
-  APP_KEY,
   CHUNK_SIZE,
   CLA,
   ERROR_CODE,
@@ -37,7 +36,6 @@ function processGetAddrResponse(response) {
 
   const publicKey = Buffer.from(partialResponse.slice(0, PKLEN));
   partialResponse = partialResponse.slice(PKLEN);
-
   const address = Buffer.from(partialResponse.slice(0, -2)).toString();
 
   return {
@@ -83,7 +81,6 @@ export default class CryptoApp {
   async getVersion() {
     return getVersion(this.transport)
       .then((response) => {
-        this.versionResponse = response;
         return response;
       })
       .catch((err) => processErrorResponse(err));
@@ -137,54 +134,6 @@ export default class CryptoApp {
         flagPINValidated: (flagsValue & 128) !== 0,
       };
     }, processErrorResponse);
-  }
-
-  async deviceInfo() {
-    return this.transport
-      .send(0xe0, 0x01, 0, 0, Buffer.from([]), [ERROR_CODE.NoError, 0x6e00])
-      .then((response) => {
-        const errorCodeData = response.slice(-2);
-        const returnCode = errorCodeData[0] * 256 + errorCodeData[1];
-
-        if (returnCode === 0x6e00) {
-          return {
-            returnCode,
-            errorMessage: "This command is only available in the Dashboard",
-          };
-        }
-
-        const targetId = response.slice(0, 4).toString("hex");
-
-        let pos = 4;
-        const secureElementVersionLen = response[pos];
-        pos += 1;
-        const seVersion = response.slice(pos, pos + secureElementVersionLen).toString();
-        pos += secureElementVersionLen;
-
-        const flagsLen = response[pos];
-        pos += 1;
-        const flag = response.slice(pos, pos + flagsLen).toString("hex");
-        pos += flagsLen;
-
-        const mcuVersionLen = response[pos];
-        pos += 1;
-        // Patch issue in mcu version
-        let tmp = response.slice(pos, pos + mcuVersionLen);
-        if (tmp[mcuVersionLen - 1] === 0) {
-          tmp = response.slice(pos, pos + mcuVersionLen - 1);
-        }
-        const mcuVersion = tmp.toString();
-
-        return {
-          returnCode,
-          errorMessage: errorCodeToString(returnCode),
-          // //
-          targetId,
-          seVersion,
-          flag,
-          mcuVersion,
-        };
-      }, processErrorResponse);
   }
 
   async getAddressAndPubKey(path) {
