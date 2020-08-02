@@ -28,6 +28,26 @@ jobs:
             cd /home/zondax/project
             make
 
+  build_example_vue:
+    docker:
+      - image: zondax/circleci:latest
+    steps:
+      - checkout
+      - run: git submodule update --init --recursive
+      - run: sudo apt-get update -y && sudo apt-get install -y libusb-1.0.0 libudev-dev curl
+      - run:
+          name: Install node + yarn
+          command: |
+            curl -sL https://deb.nodesource.com/setup_14.x | sudo -E bash -
+            sudo apt-get install -y nodejs
+            npm install -g n yarn
+            n 14.4.0
+      - run:
+          name: Build/Install build js deps
+          command: |
+            make vue_install_js_link
+            cd example_vue && yarn install && yarn build
+
   test_zemu:
     machine:
       image: ubuntu-1604:201903-01
@@ -84,11 +104,13 @@ workflows:
     jobs:
       - build
       - build_ledger
+      - build_example_vue
       - test_zemu
       - build_package:
           requires:
             - build
             - build_ledger
+            - build_example_vue
             - test_zemu
           filters:
             branches:
