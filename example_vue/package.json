@@ -33,15 +33,15 @@
     ],
     "parserOptions": {
       "parser": "babel-eslint"
-    },
-    "rules": {
-      "import/no-unresolved": [
-        2,
-        {
-          "caseSensitive": false
-        }
-      ]
     }
+  },
+  "rules": {
+    "import/no-unresolved": [
+      2,
+      {
+        "caseSensitive": false
+      }
+    ]
   },
   "browserslist": [
     "> 1%",

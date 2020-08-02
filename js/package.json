@@ -51,6 +51,14 @@
       "autoprefixer": {}
     }
   },
+  "rules": {
+    "import/no-unresolved": [
+      2,
+      {
+        "caseSensitive": false
+      }
+    ]
+  },
   "browserslist": [
     "> 1%",
     "last 2 versions"
