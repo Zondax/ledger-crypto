@@ -1,7 +1,7 @@
 {
   "name": "@zondax/ledger-crypto",
   "version": "0.0.0",
-  "description": "Node API for Crypto App (Ledger Nano S/X)",
+  "description": "Node API for Crypto.com Chain App (Ledger Nano S/X)",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "repository": {
