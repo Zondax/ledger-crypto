@@ -1,4 +1,4 @@
-# Crypto App
+# Crypto.com Chain App
 
 ## General Structure
 

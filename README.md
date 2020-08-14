@@ -1,11 +1,11 @@
-# Ledger Crypto app
+# Ledger Crypto.com Chain app
 ![stability-wip](https://img.shields.io/badge/stability-work_in_progress-lightgrey.svg)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![CircleCI](https://circleci.com/gh/Zondax/ledger-crypto.svg?style=shield&circle-token=b0e95e2e0aa538eedbfaf5516b42fb242c696107)](https://circleci.com/gh/Zondax/ledger-crypto)
 
 **This app is still work in progress!**
 
-This project contains the Crypto app for Ledger Nano S and X.
+This project contains the Crypto.com Chain app for Ledger Nano S and X.
 
 - Ledger Nano S/X BOLOS app
 - Specs / Documentation
@@ -15,9 +15,11 @@ This project contains the Crypto app for Ledger Nano S and X.
 
 ## ATTENTION
 
-Please:
+Please note that:
 
-- **Do not use in production**
+- **Crypto.com Chain is ONLY running as Testnet now**
+- **This project has NOT been fully audited yet**
+- **Do not use in production and Do not use it with your real funds**
 - **Do not use a Ledger device with funds for development purposes.**
 - **Have a separate and marked device that is used ONLY for development and testing**
 
